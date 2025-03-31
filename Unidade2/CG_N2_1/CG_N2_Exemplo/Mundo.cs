@@ -84,36 +84,6 @@ namespace gcgcg
 
       stopwatch.Start();
 #endif
-      // #region Objeto: polígono qualquer, só para testes e ajudar no desenvolvimento  
-      // List<Ponto4D> pontosPoligonoBandeiraA =
-      // [
-      //   new Ponto4D(0.25, 0.25),
-      //   new Ponto4D(0.75, 0.25),
-      //   new Ponto4D(0.75, 0.75),
-      //   new Ponto4D(0.50, 0.50),
-      //   new Ponto4D(0.25, 0.75),
-      // ];
-      // objetoSelecionado = new Poligono(mundo, ref rotuloAtual, pontosPoligonoBandeiraA);
-      // #endregion
-      // // #region NÃO USAR: declara um objeto filho ao polígono
-      // // objetoSelecionado = new Ponto(objetoSelecionado, ref rotuloAtual, new Ponto4D(0.50, 0.75));
-      // // #endregion
-      // #region Objeto: retângulo  
-      // objetoSelecionado = new Retangulo(mundo, ref rotuloAtual, new Ponto4D(-0.25, 0.25), new Ponto4D(-0.75, 0.75))
-      // {
-      //   PrimitivaTipo = PrimitiveType.LineLoop
-      // };
-      // #endregion
-      // #region Objeto: segmento de reta  
-      // objetoSelecionado = new SegReta(mundo, ref rotuloAtual, new Ponto4D(-0.25, -0.25), new Ponto4D(-0.75, -0.75));
-      // #endregion
-      // #region Objeto: ponto  
-      // objetoSelecionado = new Ponto(mundo, ref rotuloAtual, new Ponto4D(0.25, -0.25))
-      // {
-      //   PrimitivaTipo = PrimitiveType.Points,
-      //   PrimitivaTamanho = 10
-      // };
-      // #endregion
       #region Objeto: circulo
       objetoSelecionado = new Circulo(mundo, ref rotuloAtual);
       objetoSelecionado.ShaderObjeto = new Shader("Shaders/shader.vert", "Shaders/shaderAmarela.frag");
