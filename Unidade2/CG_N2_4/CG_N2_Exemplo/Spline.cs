@@ -19,7 +19,7 @@ namespace gcgcg {
         public int indice = 0;
         public Ponto[] pontos = new Ponto[4];
         private int min = 1;
-        private int max = 10;
+        private int max = 100;
         
         public Spline(Objeto _paiRef, ref char _rotulo) : base(_paiRef, ref _rotulo)
         {
@@ -59,7 +59,7 @@ namespace gcgcg {
         public void SplineQtdPto() {
             lista.Add(pontos[3].PontosId(0));         
             for (int i = min; i < max; i++) {
-                double inc = i / 10.0;
+                double inc = i / 100.0;
 
                 double ABX = pontos[3].PontosId(0).X + (pontos[2].PontosId(0).X - pontos[3].PontosId(0).X) * inc;
                 double ABY = pontos[3].PontosId(0).Y + (pontos[2].PontosId(0).Y - pontos[3].PontosId(0).Y) * inc;
@@ -167,16 +167,16 @@ namespace gcgcg {
         }
 
         public void adicionarValorT() {
-            if (min > 1 && max < 10) {
-                min--;
-                max++;
+            if (min > 1 && max < 100) {
+                min -= 5;
+                max += 5;
             }
         }
         
         public void decrementarValorT() {
-            if (min <= 5 && max >= 5) {
-                min++;
-                max--;
+            if (min <= 50 && max >= 50) {
+                min += 5;
+                max -= 5;
             }
         }
     }
