@@ -168,15 +168,15 @@ namespace gcgcg {
 
         public void adicionarValorT() {
             if (min > 1 && max < 100) {
-                min -= 5;
-                max += 5;
+                min -= 2;
+                max += 2;
             }
         }
         
         public void decrementarValorT() {
-            if (min <= 50 && max >= 50) {
-                min += 5;
-                max -= 5;
+            if (min <= 100 && max >= 1) {
+                min += 2;
+                max -= 2;
             }
         }
     }
