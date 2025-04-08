@@ -233,7 +233,7 @@ namespace gcgcg
     private void CriarComponentes(Objeto mundo, char rotuloAtual) 
     {
         pontoCentral = new Ponto(mundo, ref rotuloAtual, new Ponto4D(0, 0)) {
-            PrimitivaTamanho = 3,
+            PrimitivaTamanho = 10,
             ShaderObjeto = new Shader("Shaders/shader.vert", "Shaders/shaderCiano.frag")
         };
 
@@ -245,12 +245,12 @@ namespace gcgcg
             ShaderObjeto = new Shader("Shaders/shader.vert", "Shaders/shaderBranca.frag")
         };
 
-        box = new Retangulo(mundo, ref rotuloAtual, circuloMaior.PontosId(9), circuloMaior.PontosId(45)) {
+        box = new Retangulo(mundo, ref rotuloAtual, circuloMaior.PontosId(8), circuloMaior.PontosId(44)) {
             PrimitivaTipo = PrimitiveType.LineLoop,
             ShaderObjeto = new Shader("Shaders/shader.vert", "Shaders/shaderAzul.frag")
         };
 
-        List<Ponto4D> listaBBox = new List<Ponto4D> {circuloMaior.PontosId(9), circuloMaior.PontosId(45)};
+        List<Ponto4D> listaBBox = new List<Ponto4D> {circuloMaior.PontosId(8), circuloMaior.PontosId(44)};
         bbox = new BBox();
         bbox.Atualizar(new Transformacao4D(), listaBBox);
     }
