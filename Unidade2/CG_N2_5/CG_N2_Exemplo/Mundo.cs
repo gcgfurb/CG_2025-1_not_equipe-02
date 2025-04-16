@@ -20,12 +20,8 @@ namespace gcgcg
     private static Objeto mundo = null;
 
     private char rotuloAtual = '?';
-    private Dictionary<char, Objeto> grafoLista = [];
     private Objeto objetoSelecionado = null;
     private Transformacao4D matrizGrafo = new();
-    private int index = 0;
-    private PrimitiveType[] primitives = [];
-    private SrPalito srPalito;
     private Spline spline;
     private Circulo circuloMaior;
     private Circulo circuloMenor;
@@ -91,7 +87,27 @@ namespace gcgcg
       stopwatch.Start();
 #endif
       #region Objeto: componentes
-      CriarComponentes(mundo, rotuloAtual);
+      pontoCentral = new Ponto(mundo, ref rotuloAtual, new Ponto4D(0, 0)) {
+            PrimitivaTamanho = 10,
+            ShaderObjeto = new Shader("Shaders/shader.vert", "Shaders/shaderCiano.frag")
+        };
+
+        circuloMaior = new Circulo(mundo, ref rotuloAtual, 0.5, 0) {
+            ShaderObjeto = new Shader("Shaders/shader.vert", "Shaders/shaderAmarela.frag")
+        };
+
+        circuloMenor = new Circulo(mundo, ref rotuloAtual, 0.25, 0) {
+            ShaderObjeto = new Shader("Shaders/shader.vert", "Shaders/shaderBranca.frag")
+        };
+
+        box = new Retangulo(mundo, ref rotuloAtual, circuloMaior.PontosId(8), circuloMaior.PontosId(44)) {
+            PrimitivaTipo = PrimitiveType.LineLoop,
+            ShaderObjeto = new Shader("Shaders/shader.vert", "Shaders/shaderAzul.frag")
+        };
+
+        List<Ponto4D> listaBBox = new List<Ponto4D> {circuloMaior.PontosId(8), circuloMaior.PontosId(44)};
+        bbox = new BBox();
+        bbox.Atualizar(new Transformacao4D(), listaBBox);
       #endregion
 #if CG_Privado
       #region Objeto: circulo - origem
@@ -170,13 +186,6 @@ namespace gcgcg
       #endregion
     }
 
-    private void atualizarSegRetas() {
-        spline.segReta1.ObjetoAtualizar();
-        spline.segReta2.ObjetoAtualizar();
-        spline.segReta3.ObjetoAtualizar();
-        spline.pontos[spline.indice].Atualizar();
-    }
-
     protected override void OnResize(ResizeEventArgs e)
     {
       base.OnResize(e);
@@ -229,45 +238,21 @@ namespace gcgcg
 #endif
 #endif
     }
-
-    private void CriarComponentes(Objeto mundo, char rotuloAtual) 
-    {
-        pontoCentral = new Ponto(mundo, ref rotuloAtual, new Ponto4D(0, 0)) {
-            PrimitivaTamanho = 10,
-            ShaderObjeto = new Shader("Shaders/shader.vert", "Shaders/shaderCiano.frag")
-        };
-
-        circuloMaior = new Circulo(mundo, ref rotuloAtual, 0.5, 0) {
-            ShaderObjeto = new Shader("Shaders/shader.vert", "Shaders/shaderAmarela.frag")
-        };
-
-        circuloMenor = new Circulo(mundo, ref rotuloAtual, 0.25, 0) {
-            ShaderObjeto = new Shader("Shaders/shader.vert", "Shaders/shaderBranca.frag")
-        };
-
-        box = new Retangulo(mundo, ref rotuloAtual, circuloMaior.PontosId(8), circuloMaior.PontosId(44)) {
-            PrimitivaTipo = PrimitiveType.LineLoop,
-            ShaderObjeto = new Shader("Shaders/shader.vert", "Shaders/shaderAzul.frag")
-        };
-
-        List<Ponto4D> listaBBox = new List<Ponto4D> {circuloMaior.PontosId(8), circuloMaior.PontosId(44)};
-        bbox = new BBox();
-        bbox.Atualizar(new Transformacao4D(), listaBBox);
-    }
-
     private void MoverPrincipal(double deslocX, double deslocY) 
     {    
-        Ponto4D aux = new Ponto4D(pontoCentral.PontosId(0).X + deslocX,  pontoCentral.PontosId(0).Y + deslocY);     
+        Ponto4D ponto = new Ponto4D(pontoCentral.PontosId(0).X + deslocX,  pontoCentral.PontosId(0).Y + deslocY);     
 
-        if (circuloMaior.Bbox().Dentro(aux) && Matematica.DistanciaQuadrado(aux, new Ponto4D(0, 0)) < 0.25)
+        if (circuloMaior.Bbox().Dentro(ponto) && Matematica.DistanciaQuadrado(ponto, new Ponto4D(0, 0)) < 0.25)
         {
             pontoCentral.PontosId(0).X += deslocX;
             pontoCentral.PontosId(0).Y += deslocY;
             pontoCentral.Atualizar();
 
-            circuloMenor.deslocarCirculo(deslocX, deslocY);
+            circuloMenor.DeslocarCirculo(deslocX, deslocY);
 
-            box.PrimitivaTipo = bbox.Dentro(pontoCentral.PontosId(0)) ?  PrimitiveType.LineLoop : PrimitiveType.Points;      
+            box.PrimitivaTipo = bbox.Dentro(pontoCentral.PontosId(0)) 
+              ?  PrimitiveType.LineLoop 
+              : PrimitiveType.Points;      
         }
     }
 

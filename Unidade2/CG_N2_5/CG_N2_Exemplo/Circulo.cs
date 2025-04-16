@@ -11,17 +11,17 @@ namespace gcgcg
 
         public Circulo(Objeto _paiRef, ref char _rotulo, double raio, double deslocamento) : base(_paiRef, ref _rotulo)
         {
-            configInicial(raio, deslocamento);
+            ConfigInicial(raio, deslocamento);
         }
 
-        public void configInicial(double raio, double deslocamento)
+        public void ConfigInicial(double raio, double deslocamento)
         {
             PrimitivaTipo = PrimitiveType.LineLoop;
             PrimitivaTamanho = 2;
             this.raio = raio;
             pontosCirculo = new List<Ponto4D>();
 
-            atualizarCalculoPontos(deslocamento);
+            AtualizarCalculoPontos(deslocamento);
         }
 
         public  void CalcularPontosCirculo(double deslocamento)
@@ -42,7 +42,7 @@ namespace gcgcg
             }
         }
 
-        public void atualizarCalculoPontos(double deslocamento) 
+        public void AtualizarCalculoPontos(double deslocamento) 
         {
             CalcularPontosCirculo(deslocamento);
             pontosLista.Clear();        
@@ -51,7 +51,7 @@ namespace gcgcg
             }
         }
 
-        public void deslocarCirculo(double x, double y)
+        public void DeslocarCirculo(double x, double y)
         {
             int i = 0;
 
