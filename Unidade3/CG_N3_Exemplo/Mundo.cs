@@ -12,6 +12,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace gcgcg
 {
@@ -24,7 +25,8 @@ namespace gcgcg
     private Objeto objetoSelecionado = null;
     private Objeto objetoNovo = null;
     private Transformacao4D matrizGrafo = new();
-    private Poligono poligono;
+    private Ponto4D primeiroPonto = new();
+    private bool botaoDireitoPressionado = false;
 
 #if CG_Gizmo
     private readonly float[] _sruEixos =
@@ -142,7 +144,7 @@ namespace gcgcg
       if (stopwatch.ElapsedMilliseconds >= 1000)
       {
         Console.WriteLine($"FPS: {frames}");
-        frames = 0; 
+        frames = 0;
         stopwatch.Restart();
       }
 #endif
@@ -190,7 +192,11 @@ namespace gcgcg
       if (estadoTeclado.IsKeyPressed(Keys.Enter))
       {
         Console.WriteLine("## 2. Estrutura de dados: polígono - Enter");
-        Ponto
+        objetoSelecionado = Grafocena.GrafoCenaProximo(mundo, objetoSelecionado, grafoLista);
+        if (objetoSelecionado != null)
+        {
+          objetoSelecionado.ObjetoAtualizar();
+        }
       }
 
       // ## 3. Estrutura de dados: polígono
@@ -198,6 +204,12 @@ namespace gcgcg
       if (estadoTeclado.IsKeyPressed(Keys.D) && objetoSelecionado != null)
       {
         Console.WriteLine("## 3. Estrutura de dados: polígono - Tecla D");
+        objetoSelecionado.ObjetoRemover();
+        objetoSelecionado = Grafocena.GrafoCenaProximo(mundo, objetoSelecionado, grafoLista);
+        if (objetoSelecionado != null)
+        {
+          objetoSelecionado.ObjetoAtualizar();
+        }
       }
 
       // ## 4. Estrutura de dados: vértices mover
@@ -205,6 +217,14 @@ namespace gcgcg
       if (estadoTeclado.IsKeyDown(Keys.V) && objetoSelecionado != null)
       {
         Console.WriteLine("## 4. Estrutura de dados: vértices mover - Tecla V");
+        Ponto4D pontoAtual = new(MouseState.X, MouseState.Y);
+
+        int idPontoMaisPerto = objetoSelecionado.PontoMaisPerto(pontoAtual, true);
+
+        // Ponto4D pontoMaisPerto = objetoSelecionado.PontosId(idPontoMaisPerto);
+
+        // pontoMaisPerto.X = MouseState.X;
+        // pontoMaisPerto.Y = MouseState.Y;
       }
 
       // ## 5. Estrutura de dados: vértices remover
@@ -268,16 +288,33 @@ namespace gcgcg
 
       // ## 2. Estrutura de dados: polígono
       // Utilize o mouse para clicar na tela com botão direito e poder desenhar um novo polígono.  
-      if (MouseState.IsButtonPressed(MouseButton.Right))
+      if (MouseState.IsButtonDown(MouseButton.Right) && !botaoDireitoPressionado)
       {
-        Console.WriteLine("MouseState.IsButtonDown(MouseButton.Right)");
+        Ponto4D pontoInicial = Utilitario.NDC_TelaSRU(ClientSize.X, ClientSize.Y, new Ponto4D(MousePosition.X, MousePosition.Y));
+        primeiroPonto = pontoInicial;
+        botaoDireitoPressionado = true;
+
+        if (objetoSelecionado == null)
+        {
+          objetoSelecionado = new Poligono(mundo, ref rotuloAtual, [primeiroPonto, primeiroPonto]);
+        }
+        else
+        {
+          objetoSelecionado.PontosAdicionar(primeiroPonto);
+          objetoSelecionado.ObjetoAtualizar();
+        }
+        Console.WriteLine("Pressionado em: " + primeiroPonto.ToString());
       }
-      if (MouseState.IsButtonReleased(MouseButton.Right))
+
+      if (MouseState.IsButtonReleased(MouseButton.Right) && botaoDireitoPressionado)
       {
-        Console.WriteLine("MouseState.IsButtonReleased(MouseButton.Right)");
+        Ponto4D pontoFinal = Utilitario.NDC_TelaSRU(ClientSize.X, ClientSize.Y, new Ponto4D(MousePosition.X, MousePosition.Y));
+        objetoSelecionado.PontosAlterar(pontoFinal, 0);
+        botaoDireitoPressionado = false;
+        Console.WriteLine("Solto em: " + pontoFinal.ToString());
       }
       // ## 6. Visualização: rastro
-      // Exiba o “rasto” ao desenhar os segmentos do polígono.  
+      // Exiba o “rastro” ao desenhar os segmentos do polígono.  
       if (MouseState.IsButtonDown(MouseButton.Right))
       {
         Ponto4D sruPonto = Utilitario.NDC_TelaSRU(ClientSize.X, ClientSize.Y, new Ponto4D(MousePosition.X, MousePosition.Y));
