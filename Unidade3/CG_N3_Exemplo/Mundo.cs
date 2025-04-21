@@ -273,13 +273,49 @@ namespace gcgcg
       // ## 10. Transformações Geométricas: translação
       // Utilizando as teclas das setas direcionais (cima/baixo,direita,esquerda) movimente o polígono selecionado.  
       if (estadoTeclado.IsKeyPressed(Keys.Left) && objetoSelecionado != null)
+      {
         Console.WriteLine("## 10. Transformações Geométricas: translação - esquerda");
+        int qtdPontos = objetoSelecionado.PontosListaTamanho;
+        for (int i = 0; i < qtdPontos; i++)
+        {
+          Ponto4D ponto = objetoSelecionado.PontosId(i);
+          ponto.X -= 0.02;
+        }
+        objetoSelecionado.ObjetoAtualizar();
+      }
       if (estadoTeclado.IsKeyPressed(Keys.Right) && objetoSelecionado != null)
+      {
         Console.WriteLine("## 10. Transformações Geométricas: translação - direita");
+        int qtdPontos = objetoSelecionado.PontosListaTamanho;
+        for (int i = 0; i < qtdPontos; i++)
+        {
+          Ponto4D ponto = objetoSelecionado.PontosId(i);
+          ponto.X += 0.02;
+        }
+        objetoSelecionado.ObjetoAtualizar();
+      }
       if (estadoTeclado.IsKeyPressed(Keys.Up) && objetoSelecionado != null)
+      {
         Console.WriteLine("## 10. Transformações Geométricas: translação - cima");
+        int qtdPontos = objetoSelecionado.PontosListaTamanho;
+        for (int i = 0; i < qtdPontos; i++)
+        {
+          Ponto4D ponto = objetoSelecionado.PontosId(i);
+          ponto.Y += 0.02;
+        }
+        objetoSelecionado.ObjetoAtualizar();
+      }
       if (estadoTeclado.IsKeyPressed(Keys.Down) && objetoSelecionado != null)
+      {
         Console.WriteLine("## 10. Transformações Geométricas: translação - baixo");
+        int qtdPontos = objetoSelecionado.PontosListaTamanho;
+        for (int i = 0; i < qtdPontos; i++)
+        {
+          Ponto4D ponto = objetoSelecionado.PontosId(i);
+          ponto.Y -= 0.02;
+        }
+        objetoSelecionado.ObjetoAtualizar();
+      }
       // ## 11. Transformações Geométricas: escala
       // Utilizando as teclas PageUp/PageDown redimensione o polígono selecionado em relação ao SRU.  [TODO: testar]
       if (estadoTeclado.IsKeyPressed(Keys.PageUp) && objetoSelecionado != null)
@@ -361,9 +397,23 @@ namespace gcgcg
 
         Ponto4D sruPonto = Utilitario.NDC_TelaSRU(ClientSize.X, ClientSize.Y, new Ponto4D(MousePosition.X, MousePosition.Y));
         Console.WriteLine("Vector2 mousePosition (NDC): " + MousePosition);
+
+        objetoSelecionado = null;
+        Poligono objetoAtual = (Poligono) Grafocena.GrafoCenaProximo(mundo, objetoSelecionado, grafoLista);
+ 
+        for (int i = 0; i < grafoLista.Count; i++) {
+          objetoAtual = (Poligono) Grafocena.GrafoCenaProximo(mundo, objetoAtual, grafoLista);
+          if (objetoAtual != null && Matematica.Dentro(objetoAtual.Bbox(), sruPonto))
+          {
+            objetoSelecionado = objetoAtual;
+            break;
+          }
+        }
+        
         if (objetoSelecionado != null)
         {
           sruPonto = objetoSelecionado.MatrizGlobalInversa(sruPonto);
+          objetoSelecionado.ObjetoAtualizar();
           Console.WriteLine("Vector2 mousePosition (Objeto): " + MousePosition);
         }
       }
