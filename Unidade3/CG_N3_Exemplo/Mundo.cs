@@ -12,7 +12,6 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace gcgcg
 {
@@ -27,6 +26,7 @@ namespace gcgcg
     private Transformacao4D matrizGrafo = new();
     private Ponto4D primeiroPonto = new();
     private bool botaoDireitoPressionado = false;
+    private bool isOpen = false;
 
 #if CG_Gizmo
     private readonly float[] _sruEixos =
@@ -239,9 +239,15 @@ namespace gcgcg
         Console.WriteLine("## 7. Interação: desenho - Tecla P");
         if (objetoSelecionado.PontosListaTamanho > 2)
         {
-          int ultimoElemento = objetoSelecionado.PontosListaTamanho;
-          Ponto4D ponto = objetoSelecionado.PontosId(ultimoElemento - 1);
-          ((Poligono) objetoSelecionado).GetPontos().RemoveAt(ultimoElemento - 1);
+          if (!isOpen)
+          {
+            objetoSelecionado.PrimitivaTipo = PrimitiveType.LineStrip;
+          }
+          else
+          {
+            objetoSelecionado.PrimitivaTipo = PrimitiveType.LineLoop;
+          }
+          isOpen = !isOpen;
           objetoSelecionado.ObjetoAtualizar();
         }
       }
@@ -249,11 +255,20 @@ namespace gcgcg
       // ## 8. Interação: cores
       // Utilize o teclado (teclas R=vermelho,G=verde,B=azul) para trocar as cores dos polígonos selecionado.  
       if (estadoTeclado.IsKeyPressed(Keys.R) && objetoSelecionado != null)  // R=vermelho
+      {
         Console.WriteLine("## 8. Interação: cores - vermelho - Tecla R");
+        objetoSelecionado.ShaderObjeto = _shaderVermelha;
+      }
       if (estadoTeclado.IsKeyPressed(Keys.G) && objetoSelecionado != null)  // G=verde
+      {
         Console.WriteLine("## 8. Interação: cores - verde - Tecla G");
+        objetoSelecionado.ShaderObjeto = _shaderVerde;
+      }
       if (estadoTeclado.IsKeyPressed(Keys.B) && objetoSelecionado != null)  // B=azul
+      {
         Console.WriteLine("## 8. Interação: cores - azul - Tecla B");
+        objetoSelecionado.ShaderObjeto = _shaderAzul;
+      }
 
       // ## 10. Transformações Geométricas: translação
       // Utilizando as teclas das setas direcionais (cima/baixo,direita,esquerda) movimente o polígono selecionado.  
@@ -301,7 +316,10 @@ namespace gcgcg
 
         if (objetoSelecionado == null)
         {
-          objetoSelecionado = new Poligono(mundo, ref rotuloAtual, [primeiroPonto, primeiroPonto]);
+          objetoSelecionado = new Poligono(mundo, ref rotuloAtual, [primeiroPonto, primeiroPonto])
+          {
+            ShaderObjeto = _shaderBranca
+          };
         }
         else
         {

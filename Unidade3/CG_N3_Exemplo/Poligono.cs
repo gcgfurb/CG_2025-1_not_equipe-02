@@ -20,11 +20,6 @@ namespace gcgcg
       base.ObjetoAtualizar();
     }
 
-    public List<Ponto4D> GetPontos()
-    {
-      return base.pontosLista;
-    }
-
 #if CG_Debug
     public override string ToString()
     {
