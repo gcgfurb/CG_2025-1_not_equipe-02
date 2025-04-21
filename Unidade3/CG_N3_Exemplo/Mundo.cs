@@ -217,14 +217,9 @@ namespace gcgcg
       if (estadoTeclado.IsKeyDown(Keys.V) && objetoSelecionado != null)
       {
         Console.WriteLine("## 4. Estrutura de dados: vértices mover - Tecla V");
-        Ponto4D pontoAtual = new(MouseState.X, MouseState.Y);
+        Ponto4D pontoAtual = Utilitario.NDC_TelaSRU(ClientSize.X, ClientSize.Y, new Ponto4D(MousePosition.X, MousePosition.Y));
 
-        int idPontoMaisPerto = objetoSelecionado.PontoMaisPerto(pontoAtual, true);
-
-        // Ponto4D pontoMaisPerto = objetoSelecionado.PontosId(idPontoMaisPerto);
-
-        // pontoMaisPerto.X = MouseState.X;
-        // pontoMaisPerto.Y = MouseState.Y;
+        objetoSelecionado.PontoMaisPerto(pontoAtual, false);
       }
 
       // ## 5. Estrutura de dados: vértices remover
@@ -232,6 +227,9 @@ namespace gcgcg
       if (estadoTeclado.IsKeyPressed(Keys.E) && objetoSelecionado != null)
       {
         Console.WriteLine("## 5. Estrutura de dados: vértices remover - Tecla E");
+        Ponto4D pontoAtual = Utilitario.NDC_TelaSRU(ClientSize.X, ClientSize.Y, new Ponto4D(MousePosition.X, MousePosition.Y));
+        
+        objetoSelecionado.PontoMaisPerto(pontoAtual, true); // MANDANDO SOLID AO ESPAÇO
       }
 
       // ## 7. Interação: desenho
@@ -239,6 +237,13 @@ namespace gcgcg
       if (estadoTeclado.IsKeyPressed(Keys.P) && objetoSelecionado != null)
       {
         Console.WriteLine("## 7. Interação: desenho - Tecla P");
+        if (objetoSelecionado.PontosListaTamanho > 2)
+        {
+          int ultimoElemento = objetoSelecionado.PontosListaTamanho;
+          Ponto4D ponto = objetoSelecionado.PontosId(ultimoElemento - 1);
+          ((Poligono) objetoSelecionado).GetPontos().RemoveAt(ultimoElemento - 1);
+          objetoSelecionado.ObjetoAtualizar();
+        }
       }
 
       // ## 8. Interação: cores
