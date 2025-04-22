@@ -26,7 +26,8 @@ namespace gcgcg
     private Transformacao4D matrizGrafo = new();
     private Ponto4D primeiroPonto = new();
     private bool botaoDireitoPressionado = false;
-    private bool isOpen = false;
+    private bool ehAberto = false;
+    private bool criandoPoligono;
 
 #if CG_Gizmo
     private readonly float[] _sruEixos =
@@ -165,6 +166,7 @@ namespace gcgcg
       if (estadoTeclado.IsKeyPressed(Keys.Space))
       {
         objetoSelecionado = Grafocena.GrafoCenaProximo(mundo, objetoSelecionado, grafoLista);
+        criandoPoligono = false;
         if (objetoSelecionado != null)
           objetoSelecionado.ObjetoAtualizar();
       }
@@ -193,6 +195,7 @@ namespace gcgcg
       {
         Console.WriteLine("## 2. Estrutura de dados: polígono - Enter");
         objetoSelecionado = Grafocena.GrafoCenaProximo(mundo, objetoSelecionado, grafoLista);
+        criandoPoligono = false;
         if (objetoSelecionado != null)
         {
           objetoSelecionado.ObjetoAtualizar();
@@ -239,7 +242,7 @@ namespace gcgcg
         Console.WriteLine("## 7. Interação: desenho - Tecla P");
         if (objetoSelecionado.PontosListaTamanho > 2)
         {
-          if (!isOpen)
+          if (!ehAberto)
           {
             objetoSelecionado.PrimitivaTipo = PrimitiveType.LineStrip;
           }
@@ -247,7 +250,7 @@ namespace gcgcg
           {
             objetoSelecionado.PrimitivaTipo = PrimitiveType.LineLoop;
           }
-          isOpen = !isOpen;
+          ehAberto = !ehAberto;
           objetoSelecionado.ObjetoAtualizar();
         }
       }
@@ -356,6 +359,7 @@ namespace gcgcg
           {
             ShaderObjeto = _shaderBranca
           };
+          criandoPoligono = true;
         }
         else
         {
@@ -398,7 +402,11 @@ namespace gcgcg
         Ponto4D sruPonto = Utilitario.NDC_TelaSRU(ClientSize.X, ClientSize.Y, new Ponto4D(MousePosition.X, MousePosition.Y));
         Console.WriteLine("Vector2 mousePosition (NDC): " + MousePosition);
 
-        objetoSelecionado = null;
+        if (!criandoPoligono)
+        {
+          objetoSelecionado = null;
+        }
+
         Poligono objetoAtual = (Poligono) Grafocena.GrafoCenaProximo(mundo, objetoSelecionado, grafoLista);
  
         for (int i = 0; i < grafoLista.Count; i++) {
@@ -413,6 +421,11 @@ namespace gcgcg
         if (objetoSelecionado != null)
         {
           sruPonto = objetoSelecionado.MatrizGlobalInversa(sruPonto);
+          if (!objetoSelecionado.ScanLine(sruPonto, ref objetoSelecionado) && !criandoPoligono)
+          {
+            objetoSelecionado = null;
+            return;
+          }
           objetoSelecionado.ObjetoAtualizar();
           Console.WriteLine("Vector2 mousePosition (Objeto): " + MousePosition);
         }

@@ -8,6 +8,6 @@
 		}
 	],
 	"settings": {
-		"dotnet.defaultSolution": "CG_N2_Exemplo/CG_N3_Exemplo.sln"
+		"dotnet.defaultSolution": "CG_N3_Exemplo/CG_N3_Exemplo.sln"
 	}
 }
