@@ -15,18 +15,18 @@ using System.Diagnostics;
 
 namespace gcgcg
 {
-  public class Mundo : GameWindow
-  {
-    private static Objeto mundo = null;
+      public class Mundo : GameWindow
+      {
+            private static Objeto mundo = null;
 
-    private char rotuloAtual = '?';
-    private Dictionary<char, Objeto> grafoLista = [];
-    private Objeto objetoSelecionado = null;
-    private Transformacao4D matrizGrafo = new();
-    private int index = 0;
-    private PrimitiveType[] primitives = [];
-    private SrPalito srPalito;
-    private Spline spline;
+            private char rotuloAtual = '?';
+            private Dictionary<char, Objeto> grafoLista = [];
+            private Objeto objetoSelecionado = null;
+            private Transformacao4D matrizGrafo = new();
+            private int index = 0;
+            private PrimitiveType[] primitives = [];
+            private SrPalito srPalito;
+            private Spline spline;
 
 #if CG_Gizmo
     private readonly float[] _sruEixos =
@@ -43,37 +43,37 @@ namespace gcgcg
     private Stopwatch stopwatch = new();
 #endif
 
-    private Shader _shaderVermelha;
-    private Shader _shaderVerde;
-    private Shader _shaderAzul;
-    private Shader _shaderCiano;
+            private Shader _shaderVermelha;
+            private Shader _shaderVerde;
+            private Shader _shaderAzul;
+            private Shader _shaderCiano;
 
-    private bool mouseMovtoPrimeiro = true;
-    private Ponto4D mouseMovtoUltimo;
+            private bool mouseMovtoPrimeiro = true;
+            private Ponto4D mouseMovtoUltimo;
 
-    public Mundo(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
-      : base(gameWindowSettings, nativeWindowSettings)
-    {
-      mundo ??= new Objeto(null, ref rotuloAtual); //padrão Singleton
-    }
+            public Mundo(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
+              : base(gameWindowSettings, nativeWindowSettings)
+            {
+                  mundo ??= new Objeto(null, ref rotuloAtual); //padrão Singleton
+            }
 
-    protected override void OnLoad()
-    {
-      base.OnLoad();
+            protected override void OnLoad()
+            {
+                  base.OnLoad();
 
-      Utilitario.Diretivas();
-#if CG_DEBUG      
+                  Utilitario.Diretivas();
+#if CG_DEBUG
       Console.WriteLine("Tamanho interno da janela de desenho: " + ClientSize.X + "x" + ClientSize.Y);
 #endif
 
-      GL.ClearColor(0.5f, 0.5f, 1.0f, 1.0f);
+                  GL.ClearColor(0.5f, 0.5f, 1.0f, 1.0f);
 
-      #region Cores
-      _shaderVermelha = new Shader("Shaders/shader.vert", "Shaders/shaderVermelha.frag");
-      _shaderVerde = new Shader("Shaders/shader.vert", "Shaders/shaderVerde.frag");
-      _shaderAzul = new Shader("Shaders/shader.vert", "Shaders/shaderAzul.frag");
-      _shaderCiano = new Shader("Shaders/shader.vert", "Shaders/shaderCiano.frag");
-      #endregion
+                  #region Cores
+                  _shaderVermelha = new Shader("Shaders/shader.vert", "Shaders/shaderVermelha.frag");
+                  _shaderVerde = new Shader("Shaders/shader.vert", "Shaders/shaderVerde.frag");
+                  _shaderAzul = new Shader("Shaders/shader.vert", "Shaders/shaderAzul.frag");
+                  _shaderCiano = new Shader("Shaders/shader.vert", "Shaders/shaderCiano.frag");
+                  #endregion
 
 #if CG_Gizmo
       #region Eixos: SRU  
@@ -88,9 +88,9 @@ namespace gcgcg
 
       stopwatch.Start();
 #endif
-      #region Objeto: spline
-      spline = new Spline(mundo, ref rotuloAtual);
-      #endregion
+                  #region Objeto: spline
+                  spline = new Spline(mundo, ref rotuloAtual);
+                  #endregion
 #if CG_Privado
       #region Objeto: circulo - origem
       objetoSelecionado = new Circulo(mundo, ref rotuloAtual, 0.2)
@@ -114,16 +114,16 @@ namespace gcgcg
       objetoSelecionado = new SplineInter(mundo, ref rotuloAtual);
       #endregion
 #endif
-    }
+            }
 
-    protected override void OnRenderFrame(FrameEventArgs e)
-    {
-      base.OnRenderFrame(e);
+            protected override void OnRenderFrame(FrameEventArgs e)
+            {
+                  base.OnRenderFrame(e);
 
-      GL.Clear(ClearBufferMask.ColorBufferBit);
+                  GL.Clear(ClearBufferMask.ColorBufferBit);
 
-      matrizGrafo.AtribuirIdentidade();
-      mundo.Desenhar(matrizGrafo, objetoSelecionado);
+                  matrizGrafo.AtribuirIdentidade();
+                  mundo.Desenhar(matrizGrafo, objetoSelecionado);
 
 #if CG_Gizmo
       Gizmo_Sru3D();
@@ -136,97 +136,105 @@ namespace gcgcg
         stopwatch.Restart();
       }
 #endif
-      SwapBuffers();
-    }
+                  SwapBuffers();
+            }
 
-    protected override void OnUpdateFrame(FrameEventArgs e)
-    {
-      base.OnUpdateFrame(e); 
+            protected override void OnUpdateFrame(FrameEventArgs e)
+            {
+                  base.OnUpdateFrame(e);
 
-      var input = KeyboardState;
+                  var input = KeyboardState;
 
-      if (input.IsKeyPressed(Keys.Space)) {
-          spline.vinculoObjeto();
-          spline.selecionaPontoVermelho();
-      } 
-      
-      if (input.IsKeyPressed(Keys.C)) { 
-          spline.adicionarY();
-          atualizarSegRetas();
-          spline.atualizarSpline();
-      }
+                  if (input.IsKeyPressed(Keys.Space))
+                  {
+                        spline.VinculoObjeto();
+                        spline.SelecionaPontoVermelho();
+                  }
 
-      if (input.IsKeyPressed(Keys.B)) { 
-          spline.diminuirY();
-          atualizarSegRetas();
-          spline.atualizarSpline();
-      }
+                  if (input.IsKeyPressed(Keys.C))
+                  {
+                        spline.AdicionarY();
+                        AtualizarSegRetas();
+                        spline.AtualizarSpline();
+                  }
 
-      if (input.IsKeyPressed(Keys.D)) { 
-          spline.adicionarX();
-          atualizarSegRetas();
-          spline.atualizarSpline();
-      }
+                  if (input.IsKeyPressed(Keys.B))
+                  {
+                        spline.DiminuirY();
+                        AtualizarSegRetas();
+                        spline.AtualizarSpline();
+                  }
 
-      if (input.IsKeyPressed(Keys.E)) { 
-          spline.diminuirX();
-          atualizarSegRetas();
-          spline.atualizarSpline();
-      }
+                  if (input.IsKeyPressed(Keys.D))
+                  {
+                        spline.AdicionarX();
+                        AtualizarSegRetas();
+                        spline.AtualizarSpline();
+                  }
 
-      if (input.IsKeyPressed(Keys.KeyPadAdd)) {
-          spline.adicionarValorT();
-          atualizarSegRetas();
-          spline.atualizarSpline();
-      }
+                  if (input.IsKeyPressed(Keys.E))
+                  {
+                        spline.DiminuirX();
+                        AtualizarSegRetas();
+                        spline.AtualizarSpline();
+                  }
 
-      if (input.IsKeyPressed(Keys.Comma)) {
-          spline.decrementarValorT();
-          spline.atualizarSpline();
-          atualizarSegRetas();
-      }
-    }
+                  if (input.IsKeyPressed(Keys.KeyPadAdd))
+                  {
+                        spline.AdicionarValorT();
+                        AtualizarSegRetas();
+                        spline.AtualizarSpline();
+                  }
 
-    private void atualizarSegRetas() {
-        spline.segReta1.ObjetoAtualizar();
-        spline.segReta2.ObjetoAtualizar();
-        spline.segReta3.ObjetoAtualizar();
-        spline.pontos[spline.indice].Atualizar();
-    }
+                  if (input.IsKeyPressed(Keys.Comma))
+                  {
+                        spline.DecrementarValorT();
+                        spline.AtualizarSpline();
+                        AtualizarSegRetas();
+                  }
+            }
 
-    protected override void OnResize(ResizeEventArgs e)
-    {
-      base.OnResize(e);
+            private void AtualizarSegRetas()
+            {
+                  spline.segReta1.ObjetoAtualizar();
+                  spline.segReta2.ObjetoAtualizar();
+                  spline.segReta3.ObjetoAtualizar();
+                  spline.pontos[spline.indice].Atualizar();
+            }
 
-#if CG_DEBUG      
+            protected override void OnResize(ResizeEventArgs e)
+            {
+                  base.OnResize(e);
+
+#if CG_DEBUG
       Console.WriteLine("Tamanho interno da janela de desenho: " + ClientSize.X + "x" + ClientSize.Y);
 #endif
-      GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
-    }
+                  GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
+            }
 
-    protected override void OnUnload()
-    {
-      mundo.OnUnload();
+            protected override void OnUnload()
+            {
+                  mundo.OnUnload();
 
-      GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-      GL.BindVertexArray(0);
-      GL.UseProgram(0);
+                  GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+                  GL.BindVertexArray(0);
+                  GL.UseProgram(0);
 
 #if CG_Gizmo
       GL.DeleteBuffer(_vertexBufferObject_sruEixos);
       GL.DeleteVertexArray(_vertexArrayObject_sruEixos);
 #endif
 
-      GL.DeleteProgram(_shaderVermelha.Handle);
-      GL.DeleteProgram(_shaderVerde.Handle);
-      GL.DeleteProgram(_shaderAzul.Handle);
-      GL.DeleteProgram(_shaderCiano.Handle);
+                  GL.DeleteProgram(_shaderVermelha.Handle);
+                  GL.DeleteProgram(_shaderVerde.Handle);
+                  GL.DeleteProgram(_shaderAzul.Handle);
+                  GL.DeleteProgram(_shaderCiano.Handle);
 
-      base.OnUnload();
-    }
+                  base.OnUnload();
+            }
 
-    private void Gizmo_Sru3D()
-    {
+            private void Gizmo_Sru3D()
+            {
 #if CG_Gizmo
 #if CG_OpenGL
       var transform = Matrix4.Identity;
@@ -245,7 +253,7 @@ namespace gcgcg
       GL.DrawArrays(PrimitiveType.Lines, 4, 2);
 #endif
 #endif
-    }
+            }
 
-  }
+      }
 }

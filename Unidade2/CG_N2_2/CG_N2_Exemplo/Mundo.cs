@@ -86,7 +86,7 @@ namespace gcgcg
 
       stopwatch.Start();
 #endif
-      primitives = 
+      primitives =
       [
         PrimitiveType.Points,
         PrimitiveType.Lines,
@@ -162,8 +162,9 @@ namespace gcgcg
       #region Funções de apoio para o desenvolvimento. Não é do enunciado  
       if (estadoTeclado.IsKeyPressed(Keys.Space))
       {
-        if (index == primitives.Length) {
-            index = 0;
+        if (index == primitives.Length)
+        {
+          index = 0;
         }
         objetoSelecionado.PrimitivaTipo = primitives[index];
         index++;

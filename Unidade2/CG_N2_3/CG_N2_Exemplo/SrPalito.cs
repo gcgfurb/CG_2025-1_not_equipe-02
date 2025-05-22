@@ -9,6 +9,7 @@ namespace gcgcg
         double angulo = 45;
         double posicaoX = 0;
         double posicaoY = 0;
+
         Ponto ponto;
         Retangulo retangulo;
 
@@ -52,49 +53,49 @@ namespace gcgcg
             base.ObjetoAtualizar();
         }
 
-        public void diminuirPosicaoX() 
+        public void DiminuirPosicaoX()
         {
-            posicaoX -= 0.2;
+            posicaoX -= 0.1;
             AtualizarFrames();
             AtualizarPonto();
             AtualizarRetangulo();
         }
 
-        public void aumentarPosicaoX()
+        public void AumentarPosicaoX()
         {
-            posicaoX += 0.2;
+            posicaoX += 0.1;
             AtualizarFrames();
             AtualizarPonto();
             AtualizarRetangulo();
         }
 
-        public void diminuirRaio()
+        public void DiminuirRaio()
         {
-            raio -= 0.2;
+            raio -= 0.1;
             AtualizarFrames();
             AtualizarPonto();
             AtualizarRetangulo();
         }
 
-        public void aumentarRaio()
+        public void AumentarRaio()
         {
-            raio += 0.2;
+            raio += 0.1;
             AtualizarFrames();
             AtualizarPonto();
             AtualizarRetangulo();
         }
 
-        public void diminuirAngulo()
+        public void DiminuirAngulo()
         {
-            angulo -= 5;
+            angulo -= 1;
             AtualizarFrames();
             AtualizarPonto();
             AtualizarRetangulo();
         }
 
-        public void aumentarAngulo()
+        public void AumentarAngulo()
         {
-            angulo += 5;
+            angulo += 1;
             AtualizarFrames();
             AtualizarPonto();
             AtualizarRetangulo();
@@ -117,7 +118,7 @@ namespace gcgcg
             double meioY = (pontoInicial.Y + GetPosicaoY()) / 2;
             ponto.PontosApagar();
             ponto.PontosAdicionar(new Ponto4D(meioX, meioY));
-            ponto.Atualizar(); 
+            ponto.Atualizar();
         }
 
         private void AtualizarRetangulo()
@@ -132,5 +133,5 @@ namespace gcgcg
             retangulo.PontosAdicionar(new Ponto4D(pontoBx, pontoA.Y));
             retangulo.ObjetoAtualizar();
         }
-    }    
+    }
 }
