@@ -52,6 +52,11 @@ namespace gcgcg
 
     private Camera _camera;
 
+    float yaw = 0f;
+    float pitch = 0f;
+    bool mouseDragging = false;
+    Vector2 lastMouse;
+
     public Mundo(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
            : base(gameWindowSettings, nativeWindowSettings)
     {
@@ -130,7 +135,7 @@ namespace gcgcg
       if (stopwatch.ElapsedMilliseconds >= 1000)
       {
         Console.WriteLine($"FPS: {frames}");
-        frames = 0; 
+        frames = 0;
         stopwatch.Restart();
       }
 #endif
@@ -227,14 +232,45 @@ namespace gcgcg
       }
       if (MouseState.IsButtonDown(MouseButton.Right) && objetoSelecionado != null)
       {
-        Console.WriteLine("MouseState.IsButtonDown(MouseButton.Right)");
+        Vector3 target = Vector3.Zero;
+        float distance = 5f;
 
-        int janelaLargura = ClientSize.X;
-        int janelaAltura = ClientSize.Y;
-        Ponto4D mousePonto = new Ponto4D(MousePosition.X, MousePosition.Y);
-        Ponto4D sruPonto = Utilitario.NDC_TelaSRU(janelaLargura, janelaAltura, mousePonto);
+        if (MouseState.IsButtonDown(MouseButton.Right))
+        {
+          if (!mouseDragging)
+          {
+            lastMouse = new Vector2(MousePosition.X, MousePosition.Y);
+            mouseDragging = true;
+          }
+          else
+          {
+            Vector2 currentMouse = new Vector2(MousePosition.X, MousePosition.Y);
+            Vector2 delta = currentMouse - lastMouse;
+            lastMouse = currentMouse;
 
-        objetoSelecionado.PontosAlterar(sruPonto, 0);
+            float sensitivity = 0.3f;
+            yaw += delta.X * sensitivity;
+            pitch -= delta.Y * sensitivity;
+            pitch = Math.Clamp(pitch, -89f, 89f);
+          }
+
+          float yawRad = MathHelper.DegreesToRadians(yaw);
+          float pitchRad = MathHelper.DegreesToRadians(pitch);
+
+          float x = distance * MathF.Cos(pitchRad) * MathF.Cos(yawRad);
+          float y = distance * MathF.Sin(pitchRad);
+          float z = distance * MathF.Cos(pitchRad) * MathF.Sin(yawRad);
+
+          _camera.Position = new Vector3(x, y, z) + target;
+
+          Vector3 direction = Vector3.Normalize(target - _camera.Position);
+          _camera.Pitch = MathHelper.RadiansToDegrees(MathF.Asin(direction.Y));
+          _camera.Yaw = MathHelper.RadiansToDegrees(MathF.Atan2(direction.Z, direction.X));
+        }
+        else
+        {
+          mouseDragging = false;
+        }
       }
       if (MouseState.IsButtonReleased(MouseButton.Right))
       {
