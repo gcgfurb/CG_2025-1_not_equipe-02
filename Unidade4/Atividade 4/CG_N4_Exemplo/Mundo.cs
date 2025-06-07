@@ -25,6 +25,7 @@ namespace gcgcg
     private static Objeto mundo = null;
     private char rotuloNovo = '?';
     private Objeto objetoSelecionado = null;
+    private Cubo cubo = null;
 
 #if CG_Gizmo
     private readonly float[] _sruEixos =
@@ -224,7 +225,6 @@ namespace gcgcg
       #endregion
 #endif
 
-
       #region Objeto: ponto  
       objetoSelecionado = new Ponto(mundo, ref rotuloNovo, new Ponto4D(2.0, 0.0));
       objetoSelecionado.PrimitivaTipo = PrimitiveType.Points;
@@ -232,198 +232,12 @@ namespace gcgcg
       #endregion
 
       #region Objeto: Cubo
-      objetoSelecionado = new Cubo(mundo, ref rotuloNovo);
+      cubo = new Cubo(mundo, ref rotuloNovo);
+      objetoSelecionado = cubo;
       #endregion
+      // objetoSelecionado.MatrizEscalaXYZ(0.2, 0.2, 0.2);
 
-      #region Front Texture
-      verticesCubo = objetoSelecionado.GetPontos();
-      GL.Enable(EnableCap.Texture2D);
-      _vertexArrayObject_texture = GL.GenVertexArray();
-      GL.BindVertexArray(_vertexArrayObject_texture);
-
-      _vertexBufferObject_texture = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject_texture);
-      GL.BufferData(BufferTarget.ArrayBuffer, _vertices.Length * sizeof(float), _vertices, BufferUsageHint.StaticDraw);
-
-      _elementBufferObject_texture = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObject_texture);
-      GL.BufferData(BufferTarget.ElementArrayBuffer, _indexes.Length * sizeof(uint), _indexes, BufferUsageHint.StaticDraw);
-
-      _shader = new Shader("Shaders/shader_texture.vert", "Shaders/shader_texture.frag");
-      _shader.Use();
-
-      var vertexLocation = _shader.GetAttribLocation("aPosition");
-      GL.EnableVertexAttribArray(vertexLocation);
-      GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
-
-      var texCoordLocation = _shader.GetAttribLocation("aTexCoord");
-      GL.EnableVertexAttribArray(texCoordLocation);
-      GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
-
-      _texture = Texture.LoadFromFile("img/equipe.jpg");
-      _texture.Use(TextureUnit.Texture0);
-
-      Retangulo front = new Retangulo(objetoSelecionado, ref rotuloNovo, new Ponto4D(-0.3, -0.3, 0.3), new Ponto4D(0.3, 0.3, 0.3), false);
-      front.shaderCor = _shader;
-      #endregion
-
-      #region Back Texture
-      GL.Enable(EnableCap.Texture2D);
-      _vertexArrayObject_texture2 = GL.GenVertexArray();
-      GL.BindVertexArray(_vertexArrayObject_texture2);
-
-      _vertexBufferObject_texture2 = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject_texture2);
-      GL.BufferData(BufferTarget.ArrayBuffer, _vertices2.Length * sizeof(float), _vertices2, BufferUsageHint.StaticDraw);
-
-      _elementBufferObject_texture2 = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObject_texture2);
-      GL.BufferData(BufferTarget.ElementArrayBuffer, _indexes2.Length * sizeof(uint), _indexes2, BufferUsageHint.StaticDraw);
-
-      _shader2 = new Shader("Shaders/shader_texture.vert", "Shaders/shader_texture.frag");
-      _shader2.Use();
-
-      var vertexLocation2 = _shader2.GetAttribLocation("aPosition");
-      GL.EnableVertexAttribArray(vertexLocation);
-      GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
-
-      var texCoordLocation2 = _shader2.GetAttribLocation("aTexCoord");
-      GL.EnableVertexAttribArray(texCoordLocation);
-      GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
-
-      _texture2 = Texture.LoadFromFile("img/equipe.jpg");
-      _texture2.Use(TextureUnit.Texture0);
-
-      Retangulo back = new Retangulo(objetoSelecionado, ref rotuloNovo, new Ponto4D(-0.3, -0.3, -0.3), new Ponto4D(0.3, 0.3, -0.3), false);
-      back.shaderCor = _shader2;
-      #endregion
-
-      #region Top Texture
-      GL.Enable(EnableCap.Texture2D);
-      _vertexArrayObject_texture3 = GL.GenVertexArray();
-      GL.BindVertexArray(_vertexArrayObject_texture3);
-
-      _vertexBufferObject_texture3 = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject_texture3);
-      GL.BufferData(BufferTarget.ArrayBuffer, _vertices3.Length * sizeof(float), _vertices3, BufferUsageHint.StaticDraw);
-
-      _elementBufferObject_texture3 = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObject_texture3);
-      GL.BufferData(BufferTarget.ElementArrayBuffer, _indexes3.Length * sizeof(uint), _indexes3, BufferUsageHint.StaticDraw);
-
-      _shader3 = new Shader("Shaders/shader_texture.vert", "Shaders/shader_texture.frag");
-      _shader3.Use();
-
-      var vertexLocation3 = _shader3.GetAttribLocation("aPosition");
-      GL.EnableVertexAttribArray(vertexLocation);
-      GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
-
-      var texCoordLocation3 = _shader3.GetAttribLocation("aTexCoord");
-      GL.EnableVertexAttribArray(texCoordLocation);
-      GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
-
-      _texture3 = Texture.LoadFromFile("img/equipe.jpg");
-      _texture3.Use(TextureUnit.Texture0);
-
-      Retangulo top = new Retangulo(objetoSelecionado, ref rotuloNovo, new Ponto4D(-0.3, 0.3, -0.3), new Ponto4D(0.3, 0.3, 0.3), false);
-      top.shaderCor = _shader3;
-      #endregion
-
-      #region Bottom Texture
-      GL.Enable(EnableCap.Texture2D);
-      _vertexArrayObject_texture4 = GL.GenVertexArray();
-      GL.BindVertexArray(_vertexArrayObject_texture4);
-
-      _vertexBufferObject_texture4 = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject_texture4);
-      GL.BufferData(BufferTarget.ArrayBuffer, _vertices4.Length * sizeof(float), _vertices4, BufferUsageHint.StaticDraw);
-
-      _elementBufferObject_texture4 = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObject_texture4);
-      GL.BufferData(BufferTarget.ElementArrayBuffer, _indexes4.Length * sizeof(uint), _indexes4, BufferUsageHint.StaticDraw);
-
-      _shader4 = new Shader("Shaders/shader_texture.vert", "Shaders/shader_texture.frag");
-      _shader4.Use();
-
-      var vertexLocation4 = _shader4.GetAttribLocation("aPosition");
-      GL.EnableVertexAttribArray(vertexLocation);
-      GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
-
-      var texCoordLocation4 = _shader4.GetAttribLocation("aTexCoord");
-      GL.EnableVertexAttribArray(texCoordLocation);
-      GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
-
-      _texture4 = Texture.LoadFromFile("img/equipe.jpg");
-      _texture4.Use(TextureUnit.Texture0);
-
-      Retangulo bottom = new Retangulo(objetoSelecionado, ref rotuloNovo, new Ponto4D(-0.3, -0.3, -0.3), new Ponto4D(0.3, -0.3, 0.3), false);
-      bottom.shaderCor = _shader4;
-
-      #endregion
-
-      #region Right Texture
-      GL.Enable(EnableCap.Texture2D);
-      _vertexArrayObject_texture5 = GL.GenVertexArray();
-      GL.BindVertexArray(_vertexArrayObject_texture5);
-
-      _vertexBufferObject_texture5 = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject_texture5);
-      GL.BufferData(BufferTarget.ArrayBuffer, _vertices5.Length * sizeof(float), _vertices5, BufferUsageHint.StaticDraw);
-
-      _elementBufferObject_texture5 = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObject_texture5);
-      GL.BufferData(BufferTarget.ElementArrayBuffer, _indexes5.Length * sizeof(uint), _indexes5, BufferUsageHint.StaticDraw);
-
-      _shader5 = new Shader("Shaders/shader_texture.vert", "Shaders/shader_texture.frag");
-      _shader5.Use();
-
-      var vertexLocation5 = _shader5.GetAttribLocation("aPosition");
-      GL.EnableVertexAttribArray(vertexLocation);
-      GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
-
-      var texCoordLocation5 = _shader5.GetAttribLocation("aTexCoord");
-      GL.EnableVertexAttribArray(texCoordLocation);
-      GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
-
-      _texture5 = Texture.LoadFromFile("img/equipe.jpg");
-      _texture5.Use(TextureUnit.Texture0);
-
-      Retangulo right = new Retangulo(objetoSelecionado, ref rotuloNovo, new Ponto4D(0.3, -0.3, -0.3), new Ponto4D(0.3, 0.3, 0.3), true);
-      right.shaderCor = _shader5;
-      #endregion
-
-      #region Left Texture
-      GL.Enable(EnableCap.Texture2D);
-      _vertexArrayObject_texture6 = GL.GenVertexArray();
-      GL.BindVertexArray(_vertexArrayObject_texture6);
-
-      _vertexBufferObject_texture6 = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject_texture6);
-      GL.BufferData(BufferTarget.ArrayBuffer, _vertices6.Length * sizeof(float), _vertices6, BufferUsageHint.StaticDraw);
-
-      _elementBufferObject_texture6 = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObject_texture5);
-      GL.BufferData(BufferTarget.ElementArrayBuffer, _indexes6.Length * sizeof(uint), _indexes6, BufferUsageHint.StaticDraw);
-
-      _shader6 = new Shader("Shaders/shader_texture.vert", "Shaders/shader_texture.frag");
-      _shader6.Use();
-
-      var vertexLocation6 = _shader6.GetAttribLocation("aPosition");
-      GL.EnableVertexAttribArray(vertexLocation);
-      GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
-
-      var texCoordLocation6 = _shader6.GetAttribLocation("aTexCoord");
-      GL.EnableVertexAttribArray(texCoordLocation);
-      GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
-
-      _texture6 = Texture.LoadFromFile("img/equipe.jpg");
-      _texture6.Use(TextureUnit.Texture0);
-
-      Retangulo left = new Retangulo(objetoSelecionado, ref rotuloNovo, new Ponto4D(-0.3, -0.3, -0.3), new Ponto4D(-0.3, 0.3, 0.3), true);
-      left.shaderCor = _shader6;
-      #endregion
-
-      SelecionaLuz(0);
+      objetoSelecionado.shaderCor = _shaderAmarela;
 
       _camera = new Camera(Vector3.UnitZ * 5, ClientSize.X / (float)ClientSize.Y);
     }
@@ -481,6 +295,11 @@ namespace gcgcg
     protected override void OnUpdateFrame(FrameEventArgs e)
     {
       base.OnUpdateFrame(e);
+
+      if (cubo != null)
+      {
+        cubo.RotacionarFilho(0.05f);
+      }
 
       #region Teclado
       var input = KeyboardState;

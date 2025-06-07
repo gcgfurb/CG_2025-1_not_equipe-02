@@ -11,6 +11,7 @@ namespace gcgcg
   internal class Cubo : Objeto
   {
     Ponto4D[] vertices;
+    Ponto ponto;
     // int[] indices;
     // Vector3[] normals;
     // int[] colors;
@@ -74,6 +75,12 @@ namespace gcgcg
       base.PontosAdicionar(vertices[3]);
       base.PontosAdicionar(vertices[6]);
 
+      ponto = new Ponto(this, ref _rotulo, new Ponto4D(2.0, 0.0));
+      ponto.PrimitivaTipo = PrimitiveType.Points;
+      ponto.PrimitivaTamanho = 5;
+
+      ponto.Atualizar();
+
       Atualizar();
     }
 
@@ -81,6 +88,13 @@ namespace gcgcg
     {
 
       base.ObjetoAtualizar();
+    }
+
+    public void RotacionarFilho(float angulo)
+    {
+      ponto.MatrizRotacao(angulo);
+      ponto.Atualizar();
+      Atualizar();
     }
 
 #if CG_Debug
