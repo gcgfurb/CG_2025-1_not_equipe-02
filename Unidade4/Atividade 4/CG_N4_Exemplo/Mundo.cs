@@ -24,6 +24,7 @@ namespace gcgcg
     private static Objeto mundo = null;
     private char rotuloNovo = '?';
     private Objeto objetoSelecionado = null;
+    private Cubo cubo = null;
 
 #if CG_Gizmo
     private readonly float[] _sruEixos =
@@ -104,16 +105,10 @@ namespace gcgcg
       #endregion
 #endif
 
-      #region Objeto: ponto  
-      objetoSelecionado = new Ponto(mundo, ref rotuloNovo, new Ponto4D(2.0, 0.0));
-      objetoSelecionado.PrimitivaTipo = PrimitiveType.Points;
-      objetoSelecionado.PrimitivaTamanho = 5;
-      #endregion
-
       #region Objeto: Cubo
-      objetoSelecionado = new Cubo(mundo, ref rotuloNovo);
+      cubo = new Cubo(mundo, ref rotuloNovo);
+      objetoSelecionado = cubo;
       #endregion
-      // objetoSelecionado.MatrizEscalaXYZ(0.2, 0.2, 0.2);
 
       objetoSelecionado.shaderCor = _shaderAmarela;
 
@@ -145,6 +140,11 @@ namespace gcgcg
     protected override void OnUpdateFrame(FrameEventArgs e)
     {
       base.OnUpdateFrame(e);
+
+      if (cubo != null)
+      {
+        cubo.RotacionarFilho(0.05f);
+      }
 
       // ☞ 396c2670-8ce0-4aff-86da-0f58cd8dcfdc   TODO: forma otimizada para teclado.
       #region Teclado
@@ -225,56 +225,50 @@ namespace gcgcg
 
       if (MouseState.IsButtonPressed(MouseButton.Left))
       {
-        Console.WriteLine("MouseState.IsButtonPressed(MouseButton.Left)");
-        Console.WriteLine("__ Valores do Espaço de Tela");
-        Console.WriteLine("Vector2 mousePosition: " + MousePosition);
-        Console.WriteLine("Vector2i windowSize: " + ClientSize);
+        System.Console.WriteLine("MouseState.IsButtonPressed(MouseButton.Left)");
+        System.Console.WriteLine("__ Valores do Espaço de Tela");
+        System.Console.WriteLine("Vector2 mousePosition: " + MousePosition);
+        // System.Console.WriteLine("X: " + MouseState.X +" | PreviousX: "+ MouseState.PreviousX);
+        System.Console.WriteLine("Vector2i windowSize: " + Size);
       }
-      if (MouseState.IsButtonDown(MouseButton.Right) && objetoSelecionado != null)
+      Vector3 target = Vector3.Zero;
+      float distance = 5f;
+
+      if (MouseState.IsButtonDown(MouseButton.Left))
       {
-        Vector3 target = Vector3.Zero;
-        float distance = 5f;
-
-        if (MouseState.IsButtonDown(MouseButton.Right))
+        if (!mouseDragging)
         {
-          if (!mouseDragging)
-          {
-            lastMouse = new Vector2(MousePosition.X, MousePosition.Y);
-            mouseDragging = true;
-          }
-          else
-          {
-            Vector2 currentMouse = new Vector2(MousePosition.X, MousePosition.Y);
-            Vector2 delta = currentMouse - lastMouse;
-            lastMouse = currentMouse;
-
-            float sensitivity = 0.3f;
-            yaw += delta.X * sensitivity;
-            pitch -= delta.Y * sensitivity;
-            pitch = Math.Clamp(pitch, -89f, 89f);
-          }
-
-          float yawRad = MathHelper.DegreesToRadians(yaw);
-          float pitchRad = MathHelper.DegreesToRadians(pitch);
-
-          float x = distance * MathF.Cos(pitchRad) * MathF.Cos(yawRad);
-          float y = distance * MathF.Sin(pitchRad);
-          float z = distance * MathF.Cos(pitchRad) * MathF.Sin(yawRad);
-
-          _camera.Position = new Vector3(x, y, z) + target;
-
-          Vector3 direction = Vector3.Normalize(target - _camera.Position);
-          _camera.Pitch = MathHelper.RadiansToDegrees(MathF.Asin(direction.Y));
-          _camera.Yaw = MathHelper.RadiansToDegrees(MathF.Atan2(direction.Z, direction.X));
+          lastMouse = new Vector2(MousePosition.X, MousePosition.Y);
+          mouseDragging = true;
         }
         else
         {
-          mouseDragging = false;
+          Vector2 currentMouse = new Vector2(MousePosition.X, MousePosition.Y);
+          Vector2 delta = currentMouse - lastMouse;
+          lastMouse = currentMouse;
+
+          float sensitivity = 0.3f;
+          yaw += delta.X * sensitivity;
+          pitch -= delta.Y * sensitivity;
+          pitch = Math.Clamp(pitch, -89f, 89f);
         }
+
+        float yawRad = MathHelper.DegreesToRadians(yaw);
+        float pitchRad = MathHelper.DegreesToRadians(pitch);
+
+        float x = distance * MathF.Cos(pitchRad) * MathF.Cos(yawRad);
+        float y = distance * MathF.Sin(pitchRad);
+        float z = distance * MathF.Cos(pitchRad) * MathF.Sin(yawRad);
+
+        _camera.Position = new Vector3(x, y, z) + target;
+
+        Vector3 direction = Vector3.Normalize(target - _camera.Position);
+        _camera.Pitch = MathHelper.RadiansToDegrees(MathF.Asin(direction.Y));
+        _camera.Yaw = MathHelper.RadiansToDegrees(MathF.Atan2(direction.Z, direction.X));
       }
-      if (MouseState.IsButtonReleased(MouseButton.Right))
+      else
       {
-        Console.WriteLine("MouseState.IsButtonReleased(MouseButton.Right)");
+        mouseDragging = false;
       }
 
       #endregion
