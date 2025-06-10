@@ -93,8 +93,6 @@ namespace gcgcg
     public void RotacionarFilho(float angulo)
     {
       ponto.MatrizRotacao(angulo);
-      ponto.Atualizar();
-      Atualizar();
     }
 
 #if CG_Debug

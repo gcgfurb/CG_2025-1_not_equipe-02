@@ -262,13 +262,11 @@ namespace gcgcg
           Console.WriteLine("opção de eixoRotacao: ERRADA!");
           break;
       }
-      ObjetoAtualizar();
     }
     public void MatrizRotacao(double angulo)
     {
       MatrizRotacaoEixo(angulo);
       matriz = matrizTmpRotacao.MultiplicarMatriz(matriz);
-      ObjetoAtualizar();
     }
     public void MatrizRotacaoZBBox(double angulo)
     {

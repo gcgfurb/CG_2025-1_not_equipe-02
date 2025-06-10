@@ -143,7 +143,7 @@ namespace gcgcg
 
       if (cubo != null)
       {
-        cubo.RotacionarFilho(0.05f);
+        cubo.RotacionarFilho(0.01f);
       }
 
       // ☞ 396c2670-8ce0-4aff-86da-0f58cd8dcfdc   TODO: forma otimizada para teclado.
