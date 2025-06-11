@@ -58,6 +58,33 @@ namespace gcgcg
     bool mouseDragging = false;
     Vector2 lastMouse;
 
+    // Face 1 //
+    private readonly float[] _vertices =
+        {
+            // Position         Texture coordinates
+             1.0f,  1.0f, 1.0f, 0.0f, 0.0f, // top right
+             1.0f, -1.0f, 1.0f, 1.0f, 0.0f, // bottom right
+            -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, // bottom left
+            -1.0f,  1.0f, 1.0f, 0.0f, 1.0f  // top left
+        };
+
+    private readonly uint[] _indices =
+        {
+            3, 2, 0,
+            1, 1, 0
+        };
+
+    private int _elementBufferObject;
+
+    private int _vertexBufferObject;
+
+    private int _vertexArrayObject;
+
+    private Shader _shader;
+
+    private Texture _texture;
+    // Face 1 //
+
     public Mundo(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
            : base(gameWindowSettings, nativeWindowSettings)
     {
@@ -109,6 +136,35 @@ namespace gcgcg
       cubo = new Cubo(mundo, ref rotuloNovo);
       objetoSelecionado = cubo;
       #endregion
+      GL.DepthFunc(DepthFunction.Lequal);
+      GL.Enable(EnableCap.Texture2D);
+      _vertexArrayObject = GL.GenVertexArray();
+      GL.BindVertexArray(_vertexArrayObject);
+
+      _vertexBufferObject = GL.GenBuffer();
+      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject);
+      GL.BufferData(BufferTarget.ArrayBuffer, _vertices.Length * sizeof(float), _vertices, BufferUsageHint.StaticDraw);
+
+      _elementBufferObject = GL.GenBuffer();
+      GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObject);
+      GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length * sizeof(uint), _indices, BufferUsageHint.StaticDraw);
+
+      _shader = new Shader("Shaders/shader_texture.vert", "Shaders/shader_texture.frag");
+      _shader.Use();
+
+      var vertexLocation = _shader.GetAttribLocation("aPosition");
+      GL.EnableVertexAttribArray(vertexLocation);
+      GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
+
+      var texCoordLocation = _shader.GetAttribLocation("aTexCoord");
+      GL.EnableVertexAttribArray(texCoordLocation);
+      GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
+
+      _texture = Texture.LoadFromFile("Resources/equipe.jpg");
+      _texture.Use(TextureUnit.Texture0);
+
+      Retangulo front = new Retangulo(objetoSelecionado, ref rotuloNovo, new Ponto4D(-1, -1, 1), new Ponto4D(1, 1, 1), false);
+      front.shaderCor = _shader;
 
       objetoSelecionado.shaderCor = _shaderAmarela;
 
@@ -123,7 +179,12 @@ namespace gcgcg
 
       mundo.Desenhar(new Transformacao4D(), _camera);
 
-#if CG_Gizmo      
+      GL.BindVertexArray(_vertexArrayObject);
+      _texture.Use(TextureUnit.Texture0);
+      _shader.Use();
+      GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
+
+#if CG_Gizmo
       Gizmo_Sru3D();
 
       frames++;

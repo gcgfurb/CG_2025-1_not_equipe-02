@@ -18,7 +18,7 @@ namespace gcgcg
 
     public Cubo(Objeto _paiRef, ref char _rotulo) : base(_paiRef, ref _rotulo)
     {
-      PrimitivaTipo = PrimitiveType.Triangles;
+      PrimitivaTipo = PrimitiveType.Points;
       PrimitivaTamanho = 10;
 
       vertices = new Ponto4D[]
