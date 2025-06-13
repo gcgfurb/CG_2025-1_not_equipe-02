@@ -13,9 +13,7 @@ using OpenTK.Windowing.Desktop;
 using System;
 using OpenTK.Mathematics;
 using System.Collections.Generic;
-using System.Diagnostics;
 
-//FIXME: padrão Singleton
 
 namespace gcgcg
 {
@@ -24,9 +22,8 @@ namespace gcgcg
     private static Objeto mundo = null;
     private char rotuloNovo = '?';
     private Objeto objetoSelecionado = null;
-    private Cubo cubo = null;
+    private Objeto cubo = null;
 
-#if CG_Gizmo
     private readonly float[] _sruEixos =
     {
       -0.5f,  0.0f,  0.0f, /* X- */      0.5f,  0.0f,  0.0f, /* X+ */
@@ -34,14 +31,8 @@ namespace gcgcg
        0.0f,  0.0f, -0.5f, /* Z- */      0.0f,  0.0f,  0.5f  /* Z+ */
     };
 
-    private int _vertexBufferObject_sruEixos;
-    private int _vertexArrayObject_sruEixos;
-
-
-    // FPS
-    private int frames = 0;
-    private Stopwatch stopwatch = new();
-#endif
+    private int _vertexBufferObjectFront_sruEixos;
+    private int _vertexArrayObjectFront_sruEixos;
 
     private Shader _shaderBranca;
     private Shader _shaderVermelha;
@@ -51,39 +42,128 @@ namespace gcgcg
     private Shader _shaderMagenta;
     private Shader _shaderAmarela;
 
-    private Camera _camera;
+    private readonly float[] _verticesFront =
+    {
+      // Position         Texture coordinates
+       1.05f,  1.05f, 1.05f, 1.0f, 1.0f, // top right
+       1.05f, -1.05f, 1.05f, 1.0f, 0.0f, // bottom right
+      -1.05f, -1.05f, 1.05f, 0.0f, 0.0f, // bottom left
+      -1.05f,  1.05f, 1.05f, 0.0f, 1.0f  // top left
+    };
 
-    float yaw = 0f;
-    float pitch = 0f;
-    bool mouseDragging = false;
-    Vector2 lastMouse;
+    private readonly float[] _verticesBack =
+    {
+      // Position         Texture coordinates
+      -1.05f,  1.05f, -1.05f, 1.0f, 1.0f, // top right
+      -1.05f, -1.05f, -1.05f, 1.0f, 0.0f, // bottom right
+       1.05f, -1.05f, -1.05f, 0.0f, 0.0f, // bottom left
+       1.05f,  1.05f, -1.05f, 0.0f, 1.0f  // top left
+    };
 
-    // Face 1 //
-    private readonly float[] _vertices =
-        {
-            // Position         Texture coordinates
-             1.0f,  1.0f, 1.0f, 0.0f, 0.0f, // top right
-             1.0f, -1.0f, 1.0f, 1.0f, 0.0f, // bottom right
-            -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, // bottom left
-            -1.0f,  1.0f, 1.0f, 0.0f, 1.0f  // top left
-        };
+    private readonly float[] _verticesTop =
+    {
+      // Position         Texture coordinates
+       1.05f,  1.05f, -1.05f, 1.0f, 1.0f, // top right
+       1.05f,  1.05f,  1.05f, 1.0f, 0.0f, // bottom right
+      -1.05f,  1.05f,  1.05f, 0.0f, 0.0f, // bottom left
+      -1.05f,  1.05f, -1.05f, 0.0f, 1.0f  // top left
+    };
+
+    private readonly float[] _verticesDown =
+    {
+      // Position         Texture coordinates
+       1.05f, -1.05f,  1.05f, 1.0f, 1.0f, // top right
+       1.05f, -1.05f, -1.05f, 1.0f, 0.0f, // bottom right
+      -1.05f, -1.05f, -1.05f, 0.0f, 0.0f, // bottom left
+      -1.05f, -1.05f,  1.05f, 0.0f, 1.0f  // top left
+    };
+
+    private readonly float[] _verticesRight =
+    {
+      // Position         Texture coordinates
+       1.05f,  1.05f, -1.05f, 1.0f, 1.0f, // top right
+       1.05f, -1.05f, -1.05f, 1.0f, 0.0f, // bottom right
+       1.05f, -1.05f,  1.05f, 0.0f, 0.0f, // bottom left
+       1.05f,  1.05f,  1.05f, 0.0f, 1.0f  // top left
+    };
+
+    private readonly float[] _verticesLeft =
+    {
+      // Position         Texture coordinates
+      -1.05f,  1.05f,  1.05f, 1.0f, 1.0f, // top right
+      -1.05f, -1.05f,  1.05f, 1.0f, 0.0f, // bottom right
+      -1.05f, -1.05f, -1.05f, 0.0f, 0.0f, // bottom left
+      -1.05f,  1.05f, -1.05f, 0.0f, 1.0f  // top left
+    };
+
 
     private readonly uint[] _indices =
-        {
-            3, 2, 0,
-            1, 1, 0
-        };
+    {
+      0, 1, 3,
+      1, 2, 3
+    };
 
-    private int _elementBufferObject;
+    private readonly Vector3[] _pointLightPositions =
+    {
+      new Vector3(0.7f, 0.2f, 2.0f),
+      new Vector3(2.3f, -3.3f, -4.0f),
+      new Vector3(-4.0f, 2.0f, -12.0f),
+      new Vector3(0.0f, 0.0f, -3.0f)
+    };
 
-    private int _vertexBufferObject;
+    private int _elementBufferObjectFront;
+    private int _vertexBufferObjectFront;
+    private int _vertexArrayObjectFront;
 
-    private int _vertexArrayObject;
+    private int _vertexBufferObjectBack;
+    private int _vertexArrayObjectBack;
+    private int _elementBufferObjectBack;
+
+    private int _vertexBufferObjectTop;
+    private int _vertexArrayObjectTop;
+    private int _elementBufferObjectTop;
+
+    private int _vertexBufferObjectDown;
+    private int _vertexArrayObjectDown;
+    private int _elementBufferObjectDown;
+
+    private int _vertexBufferObjectRight;
+    private int _vertexArrayObjectRight;
+    private int _elementBufferObjectRight;
+
+    private int _vertexBufferObjectLeft;
+    private int _vertexArrayObjectLeft;
+    private int _elementBufferObjectLeft;
+
+    private int _vaoModel;
+
+    private readonly Vector3 _lightPos = new Vector3(1.2f, 1.0f, 2.0f);
 
     private Shader _shader;
 
+    private Shader _basicLighting;
+    private Shader _lightingMaps;
+    private Shader _directionalLights;
+    private Shader _pointLights;
+    private Shader _spotlight;
+    private Shader _multipleLights;
+
+    private Shader _currentShader;
+
     private Texture _texture;
-    // Face 1 //
+
+    private readonly Vector3[] _cubePositions =
+    {
+      new Vector3(0.0f, 0.0f, 0.0f)
+    };
+
+    private Camera _camera;
+    private Vector3 _origin = new(0, 0, 0);
+
+    private bool mouseDragging = false;
+    private Vector2 lastMouse;
+    private float yaw;
+    private float pitch;
 
     public Mundo(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
            : base(gameWindowSettings, nativeWindowSettings)
@@ -101,12 +181,142 @@ namespace gcgcg
       Console.WriteLine("Tamanho interno da janela de desenho: " + ClientSize.X + "x" + ClientSize.Y);
 #endif
 
+      GL.Enable(EnableCap.DepthTest);
+
       GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-      GL.Enable(EnableCap.DepthTest);       // Ativar teste de profundidade
-      GL.Enable(EnableCap.CullFace);     // Desenha os dois lados da face
-      // GL.FrontFace(FrontFaceDirection.Cw);
-      // GL.CullFace(CullFaceMode.FrontAndBack);
+      _shader = new Shader("Shaders/shaderTexture.vert", "Shaders/shaderTexture.frag");
+      _shader.Use();
+
+      _currentShader = _shader;
+
+      #region Iluminação
+      _basicLighting = new Shader("Shaders/lighting.vert", "Shaders/lighting.frag");
+      _lightingMaps = new Shader("Shaders/lmaps.vert", "Shaders/lmaps.frag");
+      _directionalLights = new Shader("Shaders/dlights.vert", "Shaders/dlights.frag");
+      _pointLights = new Shader("Shaders/plights.vert", "Shaders/plights.frag");
+      _spotlight = new Shader("Shaders/spotlight.vert", "Shaders/spotlight.frag");
+      _multipleLights = new Shader("Shaders/mlights.vert", "Shaders/mlights.frag");
+      #endregion
+
+      _vertexArrayObjectFront = GL.GenVertexArray();
+      GL.BindVertexArray(_vertexArrayObjectFront);
+
+      _vertexBufferObjectFront = GL.GenBuffer();
+      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObjectFront);
+      GL.BufferData(BufferTarget.ArrayBuffer, _verticesFront.Length * sizeof(float), _verticesFront, BufferUsageHint.StaticDraw);
+
+      var vertexLocationFront = _shader.GetAttribLocation("aPosition");
+      GL.EnableVertexAttribArray(vertexLocationFront);
+      GL.VertexAttribPointer(vertexLocationFront, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
+
+      var texCoordLocationFront = _shader.GetAttribLocation("aTexCoord");
+      GL.EnableVertexAttribArray(texCoordLocationFront);
+      GL.VertexAttribPointer(texCoordLocationFront, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
+
+      _elementBufferObjectFront = GL.GenBuffer();
+      GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObjectFront);
+      GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length * sizeof(uint), _indices, BufferUsageHint.StaticDraw);
+
+      _vertexArrayObjectBack = GL.GenVertexArray();
+      GL.BindVertexArray(_vertexArrayObjectBack);
+
+      _vertexBufferObjectBack = GL.GenBuffer();
+      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObjectBack);
+      GL.BufferData(BufferTarget.ArrayBuffer, _verticesBack.Length * sizeof(float), _verticesBack, BufferUsageHint.StaticDraw);
+
+      var vertexLocationBack = _shader.GetAttribLocation("aPosition");
+      GL.EnableVertexAttribArray(vertexLocationBack);
+      GL.VertexAttribPointer(vertexLocationBack, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
+
+      var texCoordLocationBack = _shader.GetAttribLocation("aTexCoord");
+      GL.EnableVertexAttribArray(texCoordLocationBack);
+      GL.VertexAttribPointer(texCoordLocationBack, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
+
+      _elementBufferObjectBack = GL.GenBuffer();
+      GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObjectBack);
+      GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length * sizeof(uint), _indices, BufferUsageHint.StaticDraw);
+
+      _vertexArrayObjectTop = GL.GenVertexArray();
+      GL.BindVertexArray(_vertexArrayObjectTop);
+
+      _vertexBufferObjectTop = GL.GenBuffer();
+      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObjectTop);
+      GL.BufferData(BufferTarget.ArrayBuffer, _verticesTop.Length * sizeof(float), _verticesTop, BufferUsageHint.StaticDraw);
+
+      var vertexLocationTop = _shader.GetAttribLocation("aPosition");
+      GL.EnableVertexAttribArray(vertexLocationTop);
+      GL.VertexAttribPointer(vertexLocationTop, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
+
+      var texCoordLocationTop = _shader.GetAttribLocation("aTexCoord");
+      GL.EnableVertexAttribArray(texCoordLocationTop);
+      GL.VertexAttribPointer(texCoordLocationTop, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
+
+      _elementBufferObjectTop = GL.GenBuffer();
+      GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObjectTop);
+      GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length * sizeof(uint), _indices, BufferUsageHint.StaticDraw);
+
+      _vertexArrayObjectDown = GL.GenVertexArray();
+      GL.BindVertexArray(_vertexArrayObjectDown);
+
+      _vertexBufferObjectDown = GL.GenBuffer();
+      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObjectDown);
+      GL.BufferData(BufferTarget.ArrayBuffer, _verticesDown.Length * sizeof(float), _verticesDown, BufferUsageHint.StaticDraw);
+
+      var vertexLocationDown = _shader.GetAttribLocation("aPosition");
+      GL.EnableVertexAttribArray(vertexLocationDown);
+      GL.VertexAttribPointer(vertexLocationDown, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
+
+      var texCoordLocationDown = _shader.GetAttribLocation("aTexCoord");
+      GL.EnableVertexAttribArray(texCoordLocationDown);
+      GL.VertexAttribPointer(texCoordLocationDown, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
+
+      _elementBufferObjectDown = GL.GenBuffer();
+      GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObjectDown);
+      GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length * sizeof(uint), _indices, BufferUsageHint.StaticDraw);
+
+      _vertexArrayObjectRight = GL.GenVertexArray();
+      GL.BindVertexArray(_vertexArrayObjectRight);
+
+      _vertexBufferObjectRight = GL.GenBuffer();
+      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObjectRight);
+      GL.BufferData(BufferTarget.ArrayBuffer, _verticesRight.Length * sizeof(float), _verticesRight, BufferUsageHint.StaticDraw);
+
+      var vertexLocationRight = _shader.GetAttribLocation("aPosition");
+      GL.EnableVertexAttribArray(vertexLocationRight);
+      GL.VertexAttribPointer(vertexLocationRight, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
+
+      var texCoordLocationRight = _shader.GetAttribLocation("aTexCoord");
+      GL.EnableVertexAttribArray(texCoordLocationRight);
+      GL.VertexAttribPointer(texCoordLocationRight, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
+
+      _elementBufferObjectRight = GL.GenBuffer();
+      GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObjectRight);
+      GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length * sizeof(uint), _indices, BufferUsageHint.StaticDraw);
+
+      _vertexArrayObjectLeft = GL.GenVertexArray();
+      GL.BindVertexArray(_vertexArrayObjectLeft);
+
+      _vertexBufferObjectLeft = GL.GenBuffer();
+      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObjectLeft);
+      GL.BufferData(BufferTarget.ArrayBuffer, _verticesLeft.Length * sizeof(float), _verticesLeft, BufferUsageHint.StaticDraw);
+
+      var vertexLocationLeft = _shader.GetAttribLocation("aPosition");
+      GL.EnableVertexAttribArray(vertexLocationLeft);
+      GL.VertexAttribPointer(vertexLocationLeft, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
+
+      var texCoordLocationLeft = _shader.GetAttribLocation("aTexCoord");
+      GL.EnableVertexAttribArray(texCoordLocationLeft);
+      GL.VertexAttribPointer(texCoordLocationLeft, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
+
+      _elementBufferObjectLeft = GL.GenBuffer();
+      GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObjectLeft);
+      GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length * sizeof(uint), _indices, BufferUsageHint.StaticDraw);
+
+      _texture = Texture.LoadFromFile("Resources/equipe.jpg");
+      _texture.Use(TextureUnit.Texture0);
+
+      _shader.SetInt("texture0", 0);
 
       #region Cores
       _shaderBranca = new Shader("Shaders/shader.vert", "Shaders/shaderBranca.frag");
@@ -118,55 +328,21 @@ namespace gcgcg
       _shaderAmarela = new Shader("Shaders/shader.vert", "Shaders/shaderAmarela.frag");
       #endregion
 
-#if CG_Gizmo
       #region Eixos: SRU  
-      _vertexBufferObject_sruEixos = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject_sruEixos);
+      _vertexBufferObjectFront_sruEixos = GL.GenBuffer();
+      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObjectFront_sruEixos);
       GL.BufferData(BufferTarget.ArrayBuffer, _sruEixos.Length * sizeof(float), _sruEixos, BufferUsageHint.StaticDraw);
-      _vertexArrayObject_sruEixos = GL.GenVertexArray();
-      GL.BindVertexArray(_vertexArrayObject_sruEixos);
+      _vertexArrayObjectFront_sruEixos = GL.GenVertexArray();
+      GL.BindVertexArray(_vertexArrayObjectFront_sruEixos);
       GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
       GL.EnableVertexAttribArray(0);
-
-      stopwatch.Start();
       #endregion
-#endif
 
       #region Objeto: Cubo
-      cubo = new Cubo(mundo, ref rotuloNovo);
-      objetoSelecionado = cubo;
-      #endregion
-      GL.DepthFunc(DepthFunction.Lequal);
-      GL.Enable(EnableCap.Texture2D);
-      _vertexArrayObject = GL.GenVertexArray();
-      GL.BindVertexArray(_vertexArrayObject);
-
-      _vertexBufferObject = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject);
-      GL.BufferData(BufferTarget.ArrayBuffer, _vertices.Length * sizeof(float), _vertices, BufferUsageHint.StaticDraw);
-
-      _elementBufferObject = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObject);
-      GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length * sizeof(uint), _indices, BufferUsageHint.StaticDraw);
-
-      _shader = new Shader("Shaders/shader_texture.vert", "Shaders/shader_texture.frag");
-      _shader.Use();
-
-      var vertexLocation = _shader.GetAttribLocation("aPosition");
-      GL.EnableVertexAttribArray(vertexLocation);
-      GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
-
-      var texCoordLocation = _shader.GetAttribLocation("aTexCoord");
-      GL.EnableVertexAttribArray(texCoordLocation);
-      GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
-
-      _texture = Texture.LoadFromFile("Resources/equipe.jpg");
-      _texture.Use(TextureUnit.Texture0);
-
-      Retangulo front = new Retangulo(objetoSelecionado, ref rotuloNovo, new Ponto4D(-1, -1, 1), new Ponto4D(1, 1, 1), false);
-      front.shaderCor = _shader;
-
+      objetoSelecionado = new Cubo(mundo, ref rotuloNovo);
+      cubo = objetoSelecionado;
       objetoSelecionado.shaderCor = _shaderAmarela;
+      #endregion
 
       _camera = new Camera(Vector3.UnitZ * 5, ClientSize.X / (float)ClientSize.Y);
     }
@@ -179,24 +355,244 @@ namespace gcgcg
 
       mundo.Desenhar(new Transformacao4D(), _camera);
 
-      GL.BindVertexArray(_vertexArrayObject);
       _texture.Use(TextureUnit.Texture0);
-      _shader.Use();
+
+      GL.BindVertexArray(_vaoModel);
+
+      if (_currentShader == _basicLighting)
+      {
+        _basicLighting.Use();
+
+        _basicLighting.SetMatrix4("model", Matrix4.Identity);
+        _basicLighting.SetMatrix4("view", _camera.GetViewMatrix());
+        _basicLighting.SetMatrix4("projection", _camera.GetProjectionMatrix());
+
+        _basicLighting.SetVector3("objectColor", new Vector3(1.0f, 0.5f, 0.31f));
+        _basicLighting.SetVector3("lightColor", new Vector3(1.0f, 1.0f, 1.0f));
+        _basicLighting.SetVector3("lightPos", _lightPos);
+        _basicLighting.SetVector3("viewPos", _camera.Position);
+
+        GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+      }
+
+      if (_currentShader == _lightingMaps)
+      {
+        _lightingMaps.Use();
+
+        _lightingMaps.SetMatrix4("model", Matrix4.Identity);
+        _lightingMaps.SetMatrix4("view", _camera.GetViewMatrix());
+        _lightingMaps.SetMatrix4("projection", _camera.GetProjectionMatrix());
+
+        _lightingMaps.SetVector3("viewPos", _camera.Position);
+
+        _lightingMaps.SetInt("material.diffuse", 0);
+        _lightingMaps.SetInt("material.specular", 1);
+        _lightingMaps.SetVector3("material.specular", new Vector3(0.5f, 0.5f, 0.5f));
+        _lightingMaps.SetFloat("material.shininess", 32.0f);
+
+        _lightingMaps.SetVector3("light.position", _lightPos);
+        _lightingMaps.SetVector3("light.ambient", new Vector3(0.2f));
+        _lightingMaps.SetVector3("light.diffuse", new Vector3(0.5f));
+        _lightingMaps.SetVector3("light.specular", new Vector3(1.0f));
+
+        GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+      }
+
+      if (_currentShader == _directionalLights)
+      {
+        _directionalLights.Use();
+
+        _directionalLights.SetMatrix4("model", Matrix4.Identity);
+        _directionalLights.SetMatrix4("view", _camera.GetViewMatrix());
+        _directionalLights.SetMatrix4("projection", _camera.GetProjectionMatrix());
+
+        _directionalLights.SetVector3("viewPos", _camera.Position);
+
+        _directionalLights.SetInt("material.diffuse", 0);
+        _directionalLights.SetInt("material.specular", 1);
+        _directionalLights.SetVector3("material.specular", new Vector3(0.5f, 0.5f, 0.5f));
+        _directionalLights.SetFloat("material.shininess", 32.0f);
+
+        _directionalLights.SetVector3("light.direction", new Vector3(-0.2f, -1.0f, -0.3f));
+        _directionalLights.SetVector3("light.ambient", new Vector3(0.2f));
+        _directionalLights.SetVector3("light.diffuse", new Vector3(0.5f));
+        _directionalLights.SetVector3("light.specular", new Vector3(1.0f));
+
+        for (int i = 0; i < _cubePositions.Length; i++)
+        {
+          Matrix4 model = Matrix4.CreateTranslation(_cubePositions[i]);
+          float angle = 20.0f * i;
+          model = model * Matrix4.CreateFromAxisAngle(new Vector3(1.0f, 0.3f, 0.5f), angle);
+          _directionalLights.SetMatrix4("model", model);
+
+          GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+        }
+      }
+
+      if (_currentShader == _pointLights)
+      {
+        _pointLights.Use();
+
+        _pointLights.SetMatrix4("model", Matrix4.Identity);
+        _pointLights.SetMatrix4("view", _camera.GetViewMatrix());
+        _pointLights.SetMatrix4("projection", _camera.GetProjectionMatrix());
+
+        _pointLights.SetVector3("viewPos", _camera.Position);
+
+        _pointLights.SetInt("material.diffuse", 0);
+        _pointLights.SetInt("material.specular", 1);
+        _pointLights.SetVector3("material.specular", new Vector3(0.5f, 0.5f, 0.5f));
+        _pointLights.SetFloat("material.shininess", 32.0f);
+
+        _pointLights.SetVector3("light.position", _lightPos);
+        _pointLights.SetFloat("light.constant", 1.0f);
+        _pointLights.SetFloat("light.linear", 0.09f);
+        _pointLights.SetFloat("light.quadratic", 0.032f);
+        _pointLights.SetVector3("light.ambient", new Vector3(0.2f));
+        _pointLights.SetVector3("light.diffuse", new Vector3(0.5f));
+        _pointLights.SetVector3("light.specular", new Vector3(1.0f));
+
+        for (int i = 0; i < _cubePositions.Length; i++)
+        {
+          Matrix4 model = Matrix4.CreateTranslation(_cubePositions[i]);
+          float angle = 20.0f * i;
+          model = model * Matrix4.CreateFromAxisAngle(new Vector3(1.0f, 0.3f, 0.5f), angle);
+          _pointLights.SetMatrix4("model", model);
+
+          GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+        }
+      }
+
+      if (_currentShader == _spotlight)
+      {
+        _spotlight.Use();
+
+        _spotlight.SetMatrix4("view", _camera.GetViewMatrix());
+        _spotlight.SetMatrix4("projection", _camera.GetProjectionMatrix());
+
+        _spotlight.SetVector3("viewPos", _camera.Position);
+
+        _spotlight.SetInt("material.diffuse", 0);
+        _spotlight.SetInt("material.specular", 1);
+        _spotlight.SetVector3("material.specular", new Vector3(0.5f, 0.5f, 0.5f));
+        _spotlight.SetFloat("material.shininess", 32.0f);
+
+        _spotlight.SetVector3("light.position", _camera.Position);
+        _spotlight.SetVector3("light.direction", _camera.Front);
+        _spotlight.SetFloat("light.cutOff", MathF.Cos(MathHelper.DegreesToRadians(12.5f)));
+        _spotlight.SetFloat("light.outerCutOff", MathF.Cos(MathHelper.DegreesToRadians(17.5f)));
+        _spotlight.SetFloat("light.constant", 1.0f);
+        _spotlight.SetFloat("light.linear", 0.09f);
+        _spotlight.SetFloat("light.quadratic", 0.032f);
+        _spotlight.SetVector3("light.ambient", new Vector3(0.2f));
+        _spotlight.SetVector3("light.diffuse", new Vector3(0.5f));
+        _spotlight.SetVector3("light.specular", new Vector3(1.0f));
+
+        for (int i = 0; i < _cubePositions.Length; i++)
+        {
+          Matrix4 model = Matrix4.CreateTranslation(_cubePositions[i]);
+          float angle = 20.0f * i;
+          model = model * Matrix4.CreateFromAxisAngle(new Vector3(1.0f, 0.3f, 0.5f), angle);
+          _spotlight.SetMatrix4("model", model);
+
+          GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+        }
+      }
+
+      if (_currentShader == _multipleLights)
+      {
+        _multipleLights.Use();
+
+        _multipleLights.SetMatrix4("view", _camera.GetViewMatrix());
+        _multipleLights.SetMatrix4("projection", _camera.GetProjectionMatrix());
+
+        _multipleLights.SetVector3("viewPos", _camera.Position);
+
+        _multipleLights.SetInt("material.diffuse", 0);
+        _multipleLights.SetInt("material.specular", 1);
+        _multipleLights.SetVector3("material.specular", new Vector3(0.5f, 0.5f, 0.5f));
+        _multipleLights.SetFloat("material.shininess", 32.0f);
+
+        _multipleLights.SetVector3("dirLight.direction", new Vector3(-0.2f, -1.0f, -0.3f));
+        _multipleLights.SetVector3("dirLight.ambient", new Vector3(0.05f, 0.05f, 0.05f));
+        _multipleLights.SetVector3("dirLight.diffuse", new Vector3(0.4f, 0.4f, 0.4f));
+        _multipleLights.SetVector3("dirLight.specular", new Vector3(0.5f, 0.5f, 0.5f));
+
+        for (int i = 0; i < _pointLightPositions.Length; i++)
+        {
+          _multipleLights.SetVector3($"pointLights[{i}].position", _pointLightPositions[i]);
+          _multipleLights.SetVector3($"pointLights[{i}].ambient", new Vector3(0.05f, 0.05f, 0.05f));
+          _multipleLights.SetVector3($"pointLights[{i}].diffuse", new Vector3(0.8f, 0.8f, 0.8f));
+          _multipleLights.SetVector3($"pointLights[{i}].specular", new Vector3(1.0f, 1.0f, 1.0f));
+          _multipleLights.SetFloat($"pointLights[{i}].constant", 1.0f);
+          _multipleLights.SetFloat($"pointLights[{i}].linear", 0.09f);
+          _multipleLights.SetFloat($"pointLights[{i}].quadratic", 0.032f);
+        }
+
+        _multipleLights.SetVector3("spotLight.position", _camera.Position);
+        _multipleLights.SetVector3("spotLight.direction", _camera.Front);
+        _multipleLights.SetVector3("spotLight.ambient", new Vector3(0.0f, 0.0f, 0.0f));
+        _multipleLights.SetVector3("spotLight.diffuse", new Vector3(1.0f, 1.0f, 1.0f));
+        _multipleLights.SetVector3("spotLight.specular", new Vector3(1.0f, 1.0f, 1.0f));
+        _multipleLights.SetFloat("spotLight.constant", 1.0f);
+        _multipleLights.SetFloat("spotLight.linear", 0.09f);
+        _multipleLights.SetFloat("spotLight.quadratic", 0.032f);
+        _multipleLights.SetFloat("spotLight.cutOff", MathF.Cos(MathHelper.DegreesToRadians(12.5f)));
+        _multipleLights.SetFloat("spotLight.outerCutOff", MathF.Cos(MathHelper.DegreesToRadians(17.5f)));
+
+        for (int i = 0; i < _cubePositions.Length; i++)
+        {
+          Matrix4 model = Matrix4.CreateTranslation(_cubePositions[i]);
+          float angle = 20.0f * i;
+          model = model * Matrix4.CreateFromAxisAngle(new Vector3(1.0f, 0.3f, 0.5f), angle);
+          _multipleLights.SetMatrix4("model", model);
+
+          GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+        }
+      }
+
+      GL.BindVertexArray(_vertexArrayObjectFront);
+      _texture.Use(TextureUnit.Texture0);
+      _currentShader.Use();
+
+      GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
+
+      GL.BindVertexArray(_vertexArrayObjectBack);
+      _texture.Use(TextureUnit.Texture0);
+      _currentShader.Use();
+
+      GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
+
+      GL.BindVertexArray(_vertexArrayObjectTop);
+      _texture.Use(TextureUnit.Texture0);
+      _currentShader.Use();
+
+      GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
+
+      GL.BindVertexArray(_vertexArrayObjectDown);
+      _texture.Use(TextureUnit.Texture0);
+      _currentShader.Use();
+
+      GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
+
+      GL.BindVertexArray(_vertexArrayObjectRight);
+      _texture.Use(TextureUnit.Texture0);
+      _currentShader.Use();
+
+      GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
+
+      GL.BindVertexArray(_vertexArrayObjectLeft);
+      _texture.Use(TextureUnit.Texture0);
+      _currentShader.Use();
+
       GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
 
 #if CG_Gizmo
       Gizmo_Sru3D();
-
-      frames++;
-      if (stopwatch.ElapsedMilliseconds >= 1000)
-      {
-        Console.WriteLine($"FPS: {frames}");
-        frames = 0;
-        stopwatch.Restart();
-      }
 #endif
       SwapBuffers();
     }
+
 
     protected override void OnUpdateFrame(FrameEventArgs e)
     {
@@ -204,94 +600,51 @@ namespace gcgcg
 
       if (cubo != null)
       {
-        cubo.RotacionarFilho(0.01f);
+        ((Cubo) cubo).RotacionarFilho(0.2f);
       }
 
-      // ☞ 396c2670-8ce0-4aff-86da-0f58cd8dcfdc   TODO: forma otimizada para teclado.
       #region Teclado
-      var estadoTeclado = KeyboardState;
+        var estadoTeclado = KeyboardState;
       if (estadoTeclado.IsKeyDown(Keys.Escape))
         Close();
-      if (estadoTeclado.IsKeyPressed(Keys.Space))
-      {
-        if (objetoSelecionado == null)
-          objetoSelecionado = mundo;
-        objetoSelecionado.shaderCor = _shaderBranca;
-        objetoSelecionado = mundo.GrafocenaBuscaProximo(objetoSelecionado);
-        objetoSelecionado.shaderCor = _shaderAmarela;
-      }
-      if (estadoTeclado.IsKeyPressed(Keys.G))
-        mundo.GrafocenaImprimir("");
-      if (estadoTeclado.IsKeyPressed(Keys.P) && objetoSelecionado != null)
-        Console.WriteLine(objetoSelecionado.ToString());
-      if (estadoTeclado.IsKeyPressed(Keys.M) && objetoSelecionado != null)
-        objetoSelecionado.MatrizImprimir();
-      if (estadoTeclado.IsKeyPressed(Keys.I) && objetoSelecionado != null)
-        objetoSelecionado.MatrizAtribuirIdentidade();
-      if (estadoTeclado.IsKeyPressed(Keys.Left) && objetoSelecionado != null)
-        objetoSelecionado.MatrizTranslacaoXYZ(-0.05, 0, 0);
-      if (estadoTeclado.IsKeyPressed(Keys.Right) && objetoSelecionado != null)
-        objetoSelecionado.MatrizTranslacaoXYZ(0.05, 0, 0);
-      if (estadoTeclado.IsKeyPressed(Keys.Up) && objetoSelecionado != null)
-        objetoSelecionado.MatrizTranslacaoXYZ(0, 0.05, 0);
-      if (estadoTeclado.IsKeyPressed(Keys.Down) && objetoSelecionado != null)
-        objetoSelecionado.MatrizTranslacaoXYZ(0, -0.05, 0);
-      if (estadoTeclado.IsKeyPressed(Keys.O) && objetoSelecionado != null)
-        objetoSelecionado.MatrizTranslacaoXYZ(0, 0, 0.05);
-      if (estadoTeclado.IsKeyPressed(Keys.L) && objetoSelecionado != null)
-        objetoSelecionado.MatrizTranslacaoXYZ(0, 0, -0.05);
-      if (estadoTeclado.IsKeyPressed(Keys.PageUp) && objetoSelecionado != null)
-        objetoSelecionado.MatrizEscalaXYZ(2, 2, 2);
-      if (estadoTeclado.IsKeyPressed(Keys.PageDown) && objetoSelecionado != null)
-        objetoSelecionado.MatrizEscalaXYZ(0.5, 0.5, 0.5);
-      if (estadoTeclado.IsKeyPressed(Keys.Home) && objetoSelecionado != null)
-        objetoSelecionado.MatrizEscalaXYZBBox(0.5, 0.5, 0.5);
-      if (estadoTeclado.IsKeyPressed(Keys.End) && objetoSelecionado != null)
-        objetoSelecionado.MatrizEscalaXYZBBox(2, 2, 2);
-      if (estadoTeclado.IsKeyPressed(Keys.D1) && objetoSelecionado != null)
-        objetoSelecionado.MatrizRotacao(10);
-      if (estadoTeclado.IsKeyPressed(Keys.D2) && objetoSelecionado != null)
-        objetoSelecionado.MatrizRotacao(-10);
-      if (estadoTeclado.IsKeyPressed(Keys.D3) && objetoSelecionado != null)
-      {
-        objetoSelecionado.TrocaEixoRotacao('y');
-        objetoSelecionado.MatrizRotacaoEixo(10);
-      }
-      if (estadoTeclado.IsKeyPressed(Keys.D4) && objetoSelecionado != null)
-        objetoSelecionado.MatrizRotacaoZBBox(-10);
+      if (estadoTeclado.IsKeyDown(Keys.D0))
+        _currentShader = _shader;
+      if (estadoTeclado.IsKeyDown(Keys.D1))
+        _currentShader = _basicLighting;
+      if (estadoTeclado.IsKeyDown(Keys.D2))
+        _currentShader = _lightingMaps;
+      if (estadoTeclado.IsKeyDown(Keys.D3))
+        _currentShader = _directionalLights;
+      if (estadoTeclado.IsKeyDown(Keys.D4))
+        _currentShader = _pointLights;
+      if (estadoTeclado.IsKeyDown(Keys.D5))
+        _currentShader = _spotlight;
+      if (estadoTeclado.IsKeyDown(Keys.D6))
+        _currentShader = _multipleLights;
 
       const float cameraSpeed = 1.5f;
-      if (estadoTeclado.IsKeyDown(Keys.Z))
+      var front = Vector3.Normalize(_origin - _camera.Position);
+      var right = Vector3.Normalize(Vector3.Cross(front, Vector3.UnitY));
+      var up = Vector3.Normalize(Vector3.Cross(right, front));
+
+      if (estadoTeclado.IsKeyDown(Keys.R))
         _camera.Position = Vector3.UnitZ * 5;
       if (estadoTeclado.IsKeyDown(Keys.W))
-        _camera.Position += _camera.Front * cameraSpeed * (float)e.Time; // Forward
+        _camera.Position += front * cameraSpeed * (float)e.Time;
       if (estadoTeclado.IsKeyDown(Keys.S))
-        _camera.Position -= _camera.Front * cameraSpeed * (float)e.Time; // Backwards
+        _camera.Position -= front * cameraSpeed * (float)e.Time;
       if (estadoTeclado.IsKeyDown(Keys.A))
-        _camera.Position -= _camera.Right * cameraSpeed * (float)e.Time; // Left
+        _camera.Position -= right * cameraSpeed * (float)e.Time;
       if (estadoTeclado.IsKeyDown(Keys.D))
-        _camera.Position += _camera.Right * cameraSpeed * (float)e.Time; // Right
+        _camera.Position += right * cameraSpeed * (float)e.Time;
       if (estadoTeclado.IsKeyDown(Keys.RightShift))
-        _camera.Position += _camera.Up * cameraSpeed * (float)e.Time; // Up
+        _camera.Position += up * cameraSpeed * (float)e.Time;
       if (estadoTeclado.IsKeyDown(Keys.LeftShift))
-        _camera.Position -= _camera.Up * cameraSpeed * (float)e.Time; // Down
-      // if (estadoTeclado.IsKeyDown(Keys.D9))
-      //   _camera.Position += _camera.Up * cameraSpeed * (float)e.Time; // Up
-      // if (estadoTeclado.IsKeyDown(Keys.D0))
-      //   _camera.Position -= _camera.Up * cameraSpeed * (float)e.Time; // Down
+        _camera.Position -= up * cameraSpeed * (float)e.Time;
 
       #endregion
 
       #region  Mouse
-
-      if (MouseState.IsButtonPressed(MouseButton.Left))
-      {
-        System.Console.WriteLine("MouseState.IsButtonPressed(MouseButton.Left)");
-        System.Console.WriteLine("__ Valores do Espaço de Tela");
-        System.Console.WriteLine("Vector2 mousePosition: " + MousePosition);
-        // System.Console.WriteLine("X: " + MouseState.X +" | PreviousX: "+ MouseState.PreviousX);
-        System.Console.WriteLine("Vector2i windowSize: " + Size);
-      }
       Vector3 target = Vector3.Zero;
       float distance = 5f;
 
@@ -331,9 +684,7 @@ namespace gcgcg
       {
         mouseDragging = false;
       }
-
       #endregion
-
     }
 
     protected override void OnResize(ResizeEventArgs e)
@@ -354,8 +705,8 @@ namespace gcgcg
       GL.BindVertexArray(0);
       GL.UseProgram(0);
 
-      GL.DeleteBuffer(_vertexBufferObject_sruEixos);
-      GL.DeleteVertexArray(_vertexArrayObject_sruEixos);
+      GL.DeleteBuffer(_vertexBufferObjectFront_sruEixos);
+      GL.DeleteVertexArray(_vertexArrayObjectFront_sruEixos);
 
       GL.DeleteProgram(_shaderBranca.Handle);
       GL.DeleteProgram(_shaderVermelha.Handle);
@@ -373,7 +724,12 @@ namespace gcgcg
     {
 #if CG_OpenGL && !CG_DirectX
       var model = Matrix4.Identity;
-      GL.BindVertexArray(_vertexArrayObject_sruEixos);
+      GL.BindVertexArray(_vertexArrayObjectFront_sruEixos);
+      // Textura
+      _shader.SetMatrix4("model", model);
+      _shader.SetMatrix4("view", _camera.GetViewMatrix());
+      _shader.SetMatrix4("projection", _camera.GetProjectionMatrix());
+      _shader.Use();
       // EixoX
       _shaderVermelha.SetMatrix4("model", model);
       _shaderVermelha.SetMatrix4("view", _camera.GetViewMatrix());
