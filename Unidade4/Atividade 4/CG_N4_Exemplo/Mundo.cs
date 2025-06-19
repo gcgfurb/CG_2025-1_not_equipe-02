@@ -1,6 +1,6 @@
 ﻿#define CG_DEBUG
-#define CG_Gizmo      
-#define CG_OpenGL      
+#define CG_Gizmo
+#define CG_OpenGL
 // #define CG_OpenTK
 // #define CG_DirectX      
 // #define CG_Privado      
@@ -42,102 +42,88 @@ namespace gcgcg
     private Shader _shaderMagenta;
     private Shader _shaderAmarela;
 
-    private readonly float[] _verticesFront =
+    // Vértices corrigidos com Posição, Normal e Coordenadas de Textura (8 floats por vértice)
+    private readonly float[] _vertices =
     {
-      // Position         Texture coordinates
-       1.05f,  1.05f, 1.05f, 1.0f, 1.0f, // top right
-       1.05f, -1.05f, 1.05f, 1.0f, 0.0f, // bottom right
-      -1.05f, -1.05f, 1.05f, 0.0f, 0.0f, // bottom left
-      -1.05f,  1.05f, 1.05f, 0.0f, 1.0f  // top left
-    };
+        // Posição              Normal              TexCoord
+        // Face frontal (Z-)
+        -1.05f, -1.05f, -1.05f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+         1.05f, -1.05f, -1.05f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
+         1.05f,  1.05f, -1.05f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+         1.05f,  1.05f, -1.05f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+        -1.05f,  1.05f, -1.05f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
+        -1.05f, -1.05f, -1.05f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
 
-    private readonly float[] _verticesBack =
-    {
-      // Position         Texture coordinates
-      -1.05f,  1.05f, -1.05f, 1.0f, 1.0f, // top right
-      -1.05f, -1.05f, -1.05f, 1.0f, 0.0f, // bottom right
-       1.05f, -1.05f, -1.05f, 0.0f, 0.0f, // bottom left
-       1.05f,  1.05f, -1.05f, 0.0f, 1.0f  // top left
-    };
+        // Face traseira (Z+)
+        -1.05f, -1.05f,  1.05f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,
+         1.05f, -1.05f,  1.05f,  0.0f,  0.0f,  1.0f,  1.0f, 0.0f,
+         1.05f,  1.05f,  1.05f,  0.0f,  0.0f,  1.0f,  1.0f, 1.0f,
+         1.05f,  1.05f,  1.05f,  0.0f,  0.0f,  1.0f,  1.0f, 1.0f,
+        -1.05f,  1.05f,  1.05f,  0.0f,  0.0f,  1.0f,  0.0f, 1.0f,
+        -1.05f, -1.05f,  1.05f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,
 
-    private readonly float[] _verticesTop =
-    {
-      // Position         Texture coordinates
-       1.05f,  1.05f, -1.05f, 1.0f, 1.0f, // top right
-       1.05f,  1.05f,  1.05f, 1.0f, 0.0f, // bottom right
-      -1.05f,  1.05f,  1.05f, 0.0f, 0.0f, // bottom left
-      -1.05f,  1.05f, -1.05f, 0.0f, 1.0f  // top left
-    };
+        // Face esquerda (X-)
+        -1.05f,  1.05f,  1.05f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+        -1.05f,  1.05f, -1.05f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+        -1.05f, -1.05f, -1.05f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+        -1.05f, -1.05f, -1.05f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+        -1.05f, -1.05f,  1.05f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+        -1.05f,  1.05f,  1.05f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
 
-    private readonly float[] _verticesDown =
-    {
-      // Position         Texture coordinates
-       1.05f, -1.05f,  1.05f, 1.0f, 1.0f, // top right
-       1.05f, -1.05f, -1.05f, 1.0f, 0.0f, // bottom right
-      -1.05f, -1.05f, -1.05f, 0.0f, 0.0f, // bottom left
-      -1.05f, -1.05f,  1.05f, 0.0f, 1.0f  // top left
-    };
+        // Face direita (X+)
+         1.05f,  1.05f,  1.05f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+         1.05f,  1.05f, -1.05f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+         1.05f, -1.05f, -1.05f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+         1.05f, -1.05f, -1.05f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+         1.05f, -1.05f,  1.05f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+         1.05f,  1.05f,  1.05f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
 
-    private readonly float[] _verticesRight =
-    {
-      // Position         Texture coordinates
-       1.05f,  1.05f, -1.05f, 1.0f, 1.0f, // top right
-       1.05f, -1.05f, -1.05f, 1.0f, 0.0f, // bottom right
-       1.05f, -1.05f,  1.05f, 0.0f, 0.0f, // bottom left
-       1.05f,  1.05f,  1.05f, 0.0f, 1.0f  // top left
-    };
+        // Face inferior (Y-)
+        -1.05f, -1.05f, -1.05f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+         1.05f, -1.05f, -1.05f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+         1.05f, -1.05f,  1.05f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
+         1.05f, -1.05f,  1.05f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
+        -1.05f, -1.05f,  1.05f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+        -1.05f, -1.05f, -1.05f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
 
-    private readonly float[] _verticesLeft =
-    {
-      // Position         Texture coordinates
-      -1.05f,  1.05f,  1.05f, 1.0f, 1.0f, // top right
-      -1.05f, -1.05f,  1.05f, 1.0f, 0.0f, // bottom right
-      -1.05f, -1.05f, -1.05f, 0.0f, 0.0f, // bottom left
-      -1.05f,  1.05f, -1.05f, 0.0f, 1.0f  // top left
+        // Face superior (Y+)
+        -1.05f,  1.05f, -1.05f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
+         1.05f,  1.05f, -1.05f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+         1.05f,  1.05f,  1.05f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
+         1.05f,  1.05f,  1.05f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
+        -1.05f,  1.05f,  1.05f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+        -1.05f,  1.05f, -1.05f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f
     };
-
 
     private readonly uint[] _indices =
     {
-      0, 1, 3,
-      1, 2, 3
+      0, 1, 3, 1, 2, 3
     };
 
+    private readonly Vector3 _lightPos = new Vector3(2.0f, 2.5f, 2.0f);
+
+    // We need the point lights' positions to draw the lamps and to get light the materials properly
     private readonly Vector3[] _pointLightPositions =
     {
-      new Vector3(0.7f, 0.2f, 2.0f),
-      new Vector3(2.3f, -3.3f, -4.0f),
-      new Vector3(-4.0f, 2.0f, -12.0f),
-      new Vector3(0.0f, 0.0f, -3.0f)
+        new Vector3(0.7f, 0.2f, 2.0f),
+        new Vector3(2.3f, -3.3f, -4.0f),
+        new Vector3(-4.0f, 2.0f, -12.0f),
+        new Vector3(0.0f, 0.0f, -3.0f)
     };
 
-    private int _elementBufferObjectFront;
-    private int _vertexBufferObjectFront;
-    private int _vertexArrayObjectFront;
+    private int _vertexBufferObject;
 
-    private int _vertexBufferObjectBack;
-    private int _vertexArrayObjectBack;
-    private int _elementBufferObjectBack;
+    private int _elementBufferObject;
 
-    private int _vertexBufferObjectTop;
-    private int _vertexArrayObjectTop;
-    private int _elementBufferObjectTop;
-
-    private int _vertexBufferObjectDown;
-    private int _vertexArrayObjectDown;
-    private int _elementBufferObjectDown;
-
-    private int _vertexBufferObjectRight;
-    private int _vertexArrayObjectRight;
-    private int _elementBufferObjectRight;
-
-    private int _vertexBufferObjectLeft;
-    private int _vertexArrayObjectLeft;
-    private int _elementBufferObjectLeft;
+    private int _vertexArrayObject;
 
     private int _vaoModel;
 
-    private readonly Vector3 _lightPos = new Vector3(1.2f, 1.0f, 2.0f);
+    private int _vaoLamp;
+
+    private Shader _lampShader;
+
+    private Shader _lightingShader;
 
     private Shader _shader;
 
@@ -151,10 +137,20 @@ namespace gcgcg
     private Shader _currentShader;
 
     private Texture _texture;
+    private Texture _diffuseMap;
+    private Texture _specularMap;
 
     private readonly Vector3[] _cubePositions =
     {
-      new Vector3(0.0f, 0.0f, 0.0f)
+      new Vector3(0.0f, 0.0f, 0.0f),
+      new Vector3(-10.5f, -12.2f, -2.5f),
+      new Vector3(-13.8f, -12.0f, -12.3f),
+      new Vector3(12.4f, -20.4f, -3.5f),
+      new Vector3(-15.7f, 13.0f, -7.5f),
+      new Vector3(15.3f, -6.0f, -2.5f),
+      new Vector3(19.5f, 21.0f, -2.5f),
+      new Vector3(11.5f, 30.2f, -1.5f),
+      new Vector3(-11.3f, 13.0f, -1.5f)
     };
 
     private Camera _camera;
@@ -199,125 +195,6 @@ namespace gcgcg
       _multipleLights = new Shader("Shaders/mlights.vert", "Shaders/mlights.frag");
       #endregion
 
-      _vertexArrayObjectFront = GL.GenVertexArray();
-      GL.BindVertexArray(_vertexArrayObjectFront);
-
-      _vertexBufferObjectFront = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObjectFront);
-      GL.BufferData(BufferTarget.ArrayBuffer, _verticesFront.Length * sizeof(float), _verticesFront, BufferUsageHint.StaticDraw);
-
-      var vertexLocationFront = _shader.GetAttribLocation("aPosition");
-      GL.EnableVertexAttribArray(vertexLocationFront);
-      GL.VertexAttribPointer(vertexLocationFront, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
-
-      var texCoordLocationFront = _shader.GetAttribLocation("aTexCoord");
-      GL.EnableVertexAttribArray(texCoordLocationFront);
-      GL.VertexAttribPointer(texCoordLocationFront, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
-
-      _elementBufferObjectFront = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObjectFront);
-      GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length * sizeof(uint), _indices, BufferUsageHint.StaticDraw);
-
-      _vertexArrayObjectBack = GL.GenVertexArray();
-      GL.BindVertexArray(_vertexArrayObjectBack);
-
-      _vertexBufferObjectBack = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObjectBack);
-      GL.BufferData(BufferTarget.ArrayBuffer, _verticesBack.Length * sizeof(float), _verticesBack, BufferUsageHint.StaticDraw);
-
-      var vertexLocationBack = _shader.GetAttribLocation("aPosition");
-      GL.EnableVertexAttribArray(vertexLocationBack);
-      GL.VertexAttribPointer(vertexLocationBack, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
-
-      var texCoordLocationBack = _shader.GetAttribLocation("aTexCoord");
-      GL.EnableVertexAttribArray(texCoordLocationBack);
-      GL.VertexAttribPointer(texCoordLocationBack, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
-
-      _elementBufferObjectBack = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObjectBack);
-      GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length * sizeof(uint), _indices, BufferUsageHint.StaticDraw);
-
-      _vertexArrayObjectTop = GL.GenVertexArray();
-      GL.BindVertexArray(_vertexArrayObjectTop);
-
-      _vertexBufferObjectTop = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObjectTop);
-      GL.BufferData(BufferTarget.ArrayBuffer, _verticesTop.Length * sizeof(float), _verticesTop, BufferUsageHint.StaticDraw);
-
-      var vertexLocationTop = _shader.GetAttribLocation("aPosition");
-      GL.EnableVertexAttribArray(vertexLocationTop);
-      GL.VertexAttribPointer(vertexLocationTop, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
-
-      var texCoordLocationTop = _shader.GetAttribLocation("aTexCoord");
-      GL.EnableVertexAttribArray(texCoordLocationTop);
-      GL.VertexAttribPointer(texCoordLocationTop, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
-
-      _elementBufferObjectTop = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObjectTop);
-      GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length * sizeof(uint), _indices, BufferUsageHint.StaticDraw);
-
-      _vertexArrayObjectDown = GL.GenVertexArray();
-      GL.BindVertexArray(_vertexArrayObjectDown);
-
-      _vertexBufferObjectDown = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObjectDown);
-      GL.BufferData(BufferTarget.ArrayBuffer, _verticesDown.Length * sizeof(float), _verticesDown, BufferUsageHint.StaticDraw);
-
-      var vertexLocationDown = _shader.GetAttribLocation("aPosition");
-      GL.EnableVertexAttribArray(vertexLocationDown);
-      GL.VertexAttribPointer(vertexLocationDown, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
-
-      var texCoordLocationDown = _shader.GetAttribLocation("aTexCoord");
-      GL.EnableVertexAttribArray(texCoordLocationDown);
-      GL.VertexAttribPointer(texCoordLocationDown, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
-
-      _elementBufferObjectDown = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObjectDown);
-      GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length * sizeof(uint), _indices, BufferUsageHint.StaticDraw);
-
-      _vertexArrayObjectRight = GL.GenVertexArray();
-      GL.BindVertexArray(_vertexArrayObjectRight);
-
-      _vertexBufferObjectRight = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObjectRight);
-      GL.BufferData(BufferTarget.ArrayBuffer, _verticesRight.Length * sizeof(float), _verticesRight, BufferUsageHint.StaticDraw);
-
-      var vertexLocationRight = _shader.GetAttribLocation("aPosition");
-      GL.EnableVertexAttribArray(vertexLocationRight);
-      GL.VertexAttribPointer(vertexLocationRight, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
-
-      var texCoordLocationRight = _shader.GetAttribLocation("aTexCoord");
-      GL.EnableVertexAttribArray(texCoordLocationRight);
-      GL.VertexAttribPointer(texCoordLocationRight, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
-
-      _elementBufferObjectRight = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObjectRight);
-      GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length * sizeof(uint), _indices, BufferUsageHint.StaticDraw);
-
-      _vertexArrayObjectLeft = GL.GenVertexArray();
-      GL.BindVertexArray(_vertexArrayObjectLeft);
-
-      _vertexBufferObjectLeft = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObjectLeft);
-      GL.BufferData(BufferTarget.ArrayBuffer, _verticesLeft.Length * sizeof(float), _verticesLeft, BufferUsageHint.StaticDraw);
-
-      var vertexLocationLeft = _shader.GetAttribLocation("aPosition");
-      GL.EnableVertexAttribArray(vertexLocationLeft);
-      GL.VertexAttribPointer(vertexLocationLeft, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
-
-      var texCoordLocationLeft = _shader.GetAttribLocation("aTexCoord");
-      GL.EnableVertexAttribArray(texCoordLocationLeft);
-      GL.VertexAttribPointer(texCoordLocationLeft, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
-
-      _elementBufferObjectLeft = GL.GenBuffer();
-      GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObjectLeft);
-      GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length * sizeof(uint), _indices, BufferUsageHint.StaticDraw);
-
-      _texture = Texture.LoadFromFile("Resources/equipe.jpg");
-      _texture.Use(TextureUnit.Texture0);
-
-      _shader.SetInt("texture0", 0);
-
       #region Cores
       _shaderBranca = new Shader("Shaders/shader.vert", "Shaders/shaderBranca.frag");
       _shaderVermelha = new Shader("Shaders/shader.vert", "Shaders/shaderVermelha.frag");
@@ -338,6 +215,70 @@ namespace gcgcg
       GL.EnableVertexAttribArray(0);
       #endregion
 
+      GL.Enable(EnableCap.DepthTest);
+
+      _vertexArrayObject = GL.GenVertexArray();
+      GL.BindVertexArray(_vertexArrayObject);
+
+      _vertexBufferObject = GL.GenBuffer();
+      GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject);
+      GL.BufferData(BufferTarget.ArrayBuffer, _vertices.Length * sizeof(float), _vertices, BufferUsageHint.StaticDraw);
+
+      // Configuração corrigida dos atributos de vértice
+      var vertexLocation = _shader.GetAttribLocation("aPosition");
+      GL.EnableVertexAttribArray(vertexLocation);
+      GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+
+      // Atributo normal (se necessário)
+      var normalLocation = _shader.GetAttribLocation("aNormal");
+      if (normalLocation >= 0)
+      {
+        GL.EnableVertexAttribArray(normalLocation);
+        GL.VertexAttribPointer(normalLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
+      }
+
+      // Coordenadas de textura corrigidas
+      var texCoordLocation = _shader.GetAttribLocation("aTexCoord");
+      GL.EnableVertexAttribArray(texCoordLocation);
+      GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 6 * sizeof(float));
+
+      _elementBufferObject = GL.GenBuffer();
+      GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObject);
+      GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length * sizeof(uint), _indices, BufferUsageHint.StaticDraw);
+
+      _lightingShader = new Shader("Shaders/lighting.vert", "Shaders/lighting.frag");
+      _lampShader = new Shader("Shaders/shaderLamp.vert", "Shaders/shaderLamp.frag");
+
+      _texture = Texture.LoadFromFile("Resources/equipe.png");
+      _texture.Use(TextureUnit.Texture0);
+
+      _shader.SetInt("texture0", 0);
+
+      _diffuseMap = Texture.LoadFromFile("Resources/equipe.png");
+      _specularMap = Texture.LoadFromFile("Resources/specular.png");
+
+      {
+        _vaoModel = GL.GenVertexArray();
+        GL.BindVertexArray(_vaoModel);
+
+        var positionLocation = _lightingShader.GetAttribLocation("aPos");
+        GL.EnableVertexAttribArray(positionLocation);
+        GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+
+        var normalLocation2 = _lightingShader.GetAttribLocation("aNormal");
+        GL.EnableVertexAttribArray(normalLocation2);
+        GL.VertexAttribPointer(normalLocation2, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
+      }
+
+      {
+        _vaoLamp = GL.GenVertexArray();
+        GL.BindVertexArray(_vaoLamp);
+
+        var positionLocation = _lampShader.GetAttribLocation("aPos");
+        GL.EnableVertexAttribArray(positionLocation);
+        GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+      }
+
       #region Objeto: Cubo
       objetoSelecionado = new Cubo(mundo, ref rotuloNovo);
       cubo = objetoSelecionado;
@@ -345,6 +286,10 @@ namespace gcgcg
       #endregion
 
       _camera = new Camera(Vector3.UnitZ * 5, ClientSize.X / (float)ClientSize.Y);
+
+      Vector3 dir = Vector3.Normalize(_camera.Position);
+      pitch = MathHelper.RadiansToDegrees(MathF.Asin(dir.Y));
+      yaw = MathHelper.RadiansToDegrees(MathF.Atan2(dir.Z, dir.X));
     }
 
     protected override void OnRenderFrame(FrameEventArgs e)
@@ -355,28 +300,51 @@ namespace gcgcg
 
       mundo.Desenhar(new Transformacao4D(), _camera);
 
-      _texture.Use(TextureUnit.Texture0);
-
       GL.BindVertexArray(_vaoModel);
 
       if (_currentShader == _basicLighting)
       {
-        _basicLighting.Use();
+        _texture.Use(TextureUnit.Texture0);
+        _currentShader.Use();
 
-        _basicLighting.SetMatrix4("model", Matrix4.Identity);
-        _basicLighting.SetMatrix4("view", _camera.GetViewMatrix());
-        _basicLighting.SetMatrix4("projection", _camera.GetProjectionMatrix());
+        _lightingShader.Use();
 
-        _basicLighting.SetVector3("objectColor", new Vector3(1.0f, 0.5f, 0.31f));
-        _basicLighting.SetVector3("lightColor", new Vector3(1.0f, 1.0f, 1.0f));
-        _basicLighting.SetVector3("lightPos", _lightPos);
-        _basicLighting.SetVector3("viewPos", _camera.Position);
+        _lightingShader.SetMatrix4("model", Matrix4.Identity);
+        _lightingShader.SetMatrix4("view", _camera.GetViewMatrix());
+        _lightingShader.SetMatrix4("projection", _camera.GetProjectionMatrix());
+
+        _lightingShader.SetVector3("objectColor", new Vector3(1.0f, 0.5f, 0.31f));
+        _lightingShader.SetVector3("lightColor", new Vector3(1.0f, 1.0f, 1.0f));
+        _lightingShader.SetVector3("lightPos", _lightPos);
+        _lightingShader.SetVector3("viewPos", _camera.Position);
+
+        GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+
+        GL.BindVertexArray(_vaoLamp);
+
+        _lampShader.Use();
+
+        Matrix4 lampMatrix = Matrix4.CreateScale(0.2f);
+        lampMatrix = lampMatrix * Matrix4.CreateTranslation(_lightPos);
+
+        _lampShader.SetMatrix4("model", lampMatrix);
+        _lampShader.SetMatrix4("view", _camera.GetViewMatrix());
+        _lampShader.SetMatrix4("projection", _camera.GetProjectionMatrix());
 
         GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
       }
 
       if (_currentShader == _lightingMaps)
       {
+        // The two textures need to be used, in this case we use the diffuse map as our 0th texture
+        // and the specular map as our 1st texture.
+        _specularMap.Use(TextureUnit.Texture0);
+        _diffuseMap.Use(TextureUnit.Texture1);
+
+        _lightingMaps.SetInt("material.specular", 0);
+        _lightingMaps.SetInt("material.diffuse", 1);
+
+        _lightingShader.Use();
         _lightingMaps.Use();
 
         _lightingMaps.SetMatrix4("model", Matrix4.Identity);
@@ -385,24 +353,38 @@ namespace gcgcg
 
         _lightingMaps.SetVector3("viewPos", _camera.Position);
 
+        // Here we specify to the shaders what textures they should refer to when we want to get the positions.
         _lightingMaps.SetInt("material.diffuse", 0);
         _lightingMaps.SetInt("material.specular", 1);
-        _lightingMaps.SetVector3("material.specular", new Vector3(0.5f, 0.5f, 0.5f));
-        _lightingMaps.SetFloat("material.shininess", 32.0f);
+        _lightingMaps.SetFloat("material.shininess", 12.0f);
 
         _lightingMaps.SetVector3("light.position", _lightPos);
-        _lightingMaps.SetVector3("light.ambient", new Vector3(0.2f));
-        _lightingMaps.SetVector3("light.diffuse", new Vector3(0.5f));
-        _lightingMaps.SetVector3("light.specular", new Vector3(1.0f));
+        _lightingMaps.SetVector3("light.ambient", new Vector3(0.5f));
+        _lightingMaps.SetVector3("light.diffuse", new Vector3(1.0f));
+        _lightingMaps.SetVector3("light.specular", new Vector3(2.0f));
+
+        GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+
+        GL.BindVertexArray(_vaoLamp);
+
+        _lampShader.Use();
+
+        Matrix4 lampMatrix = Matrix4.CreateScale(0.2f);
+        lampMatrix = lampMatrix * Matrix4.CreateTranslation(_lightPos);
+
+        _lampShader.SetMatrix4("model", lampMatrix);
+        _lampShader.SetMatrix4("view", _camera.GetViewMatrix());
+        _lampShader.SetMatrix4("projection", _camera.GetProjectionMatrix());
 
         GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
       }
 
       if (_currentShader == _directionalLights)
       {
+        _diffuseMap.Use(TextureUnit.Texture0);
+        _specularMap.Use(TextureUnit.Texture1);
         _directionalLights.Use();
 
-        _directionalLights.SetMatrix4("model", Matrix4.Identity);
         _directionalLights.SetMatrix4("view", _camera.GetViewMatrix());
         _directionalLights.SetMatrix4("projection", _camera.GetProjectionMatrix());
 
@@ -410,30 +392,49 @@ namespace gcgcg
 
         _directionalLights.SetInt("material.diffuse", 0);
         _directionalLights.SetInt("material.specular", 1);
-        _directionalLights.SetVector3("material.specular", new Vector3(0.5f, 0.5f, 0.5f));
         _directionalLights.SetFloat("material.shininess", 32.0f);
 
+        // Directional light needs a direction, in this example we just use (-0.2, -1.0, -0.3f) as the lights direction
         _directionalLights.SetVector3("light.direction", new Vector3(-0.2f, -1.0f, -0.3f));
-        _directionalLights.SetVector3("light.ambient", new Vector3(0.2f));
-        _directionalLights.SetVector3("light.diffuse", new Vector3(0.5f));
+        _directionalLights.SetVector3("light.ambient", new Vector3(0.4f));
+        _directionalLights.SetVector3("light.diffuse", new Vector3(1.0f));
         _directionalLights.SetVector3("light.specular", new Vector3(1.0f));
 
+        // We want to draw all the cubes at their respective positions
         for (int i = 0; i < _cubePositions.Length; i++)
         {
+          // Then we translate said matrix by the cube position
           Matrix4 model = Matrix4.CreateTranslation(_cubePositions[i]);
+          // We then calculate the angle and rotate the model around an axis
           float angle = 20.0f * i;
           model = model * Matrix4.CreateFromAxisAngle(new Vector3(1.0f, 0.3f, 0.5f), angle);
+          // Remember to set the model at last so it can be used by opentk
           _directionalLights.SetMatrix4("model", model);
 
+          // At last we draw all our cubes
           GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
         }
+
+        GL.BindVertexArray(_vaoLamp);
+
+        _lampShader.Use();
+
+        Matrix4 lampMatrix = Matrix4.CreateScale(0.2f);
+        lampMatrix = lampMatrix * Matrix4.CreateTranslation(_lightPos);
+
+        _lampShader.SetMatrix4("model", lampMatrix);
+        _lampShader.SetMatrix4("view", _camera.GetViewMatrix());
+        _lampShader.SetMatrix4("projection", _camera.GetProjectionMatrix());
+
+        GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
       }
 
       if (_currentShader == _pointLights)
       {
+        _diffuseMap.Use(TextureUnit.Texture0);
+        _specularMap.Use(TextureUnit.Texture1);
         _pointLights.Use();
 
-        _pointLights.SetMatrix4("model", Matrix4.Identity);
         _pointLights.SetMatrix4("view", _camera.GetViewMatrix());
         _pointLights.SetMatrix4("projection", _camera.GetProjectionMatrix());
 
@@ -441,30 +442,52 @@ namespace gcgcg
 
         _pointLights.SetInt("material.diffuse", 0);
         _pointLights.SetInt("material.specular", 1);
-        _pointLights.SetVector3("material.specular", new Vector3(0.5f, 0.5f, 0.5f));
         _pointLights.SetFloat("material.shininess", 32.0f);
 
         _pointLights.SetVector3("light.position", _lightPos);
         _pointLights.SetFloat("light.constant", 1.0f);
         _pointLights.SetFloat("light.linear", 0.09f);
         _pointLights.SetFloat("light.quadratic", 0.032f);
-        _pointLights.SetVector3("light.ambient", new Vector3(0.2f));
+        _pointLights.SetVector3("light.ambient", new Vector3(5.0f));
         _pointLights.SetVector3("light.diffuse", new Vector3(0.5f));
         _pointLights.SetVector3("light.specular", new Vector3(1.0f));
 
+        // We want to draw all the cubes at their respective positions
         for (int i = 0; i < _cubePositions.Length; i++)
         {
+          // First we create a model from an identity matrix
+          // Then we translate said matrix by the cube position
           Matrix4 model = Matrix4.CreateTranslation(_cubePositions[i]);
+          // We then calculate the angle and rotate the model around an axis
           float angle = 20.0f * i;
           model = model * Matrix4.CreateFromAxisAngle(new Vector3(1.0f, 0.3f, 0.5f), angle);
+          // Remember to set the model at last so it can be used by opentk
           _pointLights.SetMatrix4("model", model);
 
+          // At last we draw all our cubes
           GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
         }
+
+        GL.BindVertexArray(_vaoLamp);
+
+        _lampShader.Use();
+
+        Matrix4 lampMatrix = Matrix4.CreateScale(0.2f);
+        lampMatrix = lampMatrix * Matrix4.CreateTranslation(_lightPos);
+
+        _lampShader.SetMatrix4("model", lampMatrix);
+        _lampShader.SetMatrix4("view", _camera.GetViewMatrix());
+        _lampShader.SetMatrix4("projection", _camera.GetProjectionMatrix());
+
+        GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
       }
 
       if (_currentShader == _spotlight)
       {
+
+        _diffuseMap.Use(TextureUnit.Texture0);
+        _specularMap.Use(TextureUnit.Texture1);
+
         _spotlight.Use();
 
         _spotlight.SetMatrix4("view", _camera.GetViewMatrix());
@@ -474,7 +497,6 @@ namespace gcgcg
 
         _spotlight.SetInt("material.diffuse", 0);
         _spotlight.SetInt("material.specular", 1);
-        _spotlight.SetVector3("material.specular", new Vector3(0.5f, 0.5f, 0.5f));
         _spotlight.SetFloat("material.shininess", 32.0f);
 
         _spotlight.SetVector3("light.position", _camera.Position);
@@ -488,19 +510,43 @@ namespace gcgcg
         _spotlight.SetVector3("light.diffuse", new Vector3(0.5f));
         _spotlight.SetVector3("light.specular", new Vector3(1.0f));
 
+        // We want to draw all the cubes at their respective positions
         for (int i = 0; i < _cubePositions.Length; i++)
         {
+          // Then we translate said matrix by the cube position
           Matrix4 model = Matrix4.CreateTranslation(_cubePositions[i]);
+          // We then calculate the angle and rotate the model around an axis
           float angle = 20.0f * i;
           model = model * Matrix4.CreateFromAxisAngle(new Vector3(1.0f, 0.3f, 0.5f), angle);
+          // Remember to set the model at last so it can be used by opentk
           _spotlight.SetMatrix4("model", model);
 
+          // At last we draw all our cubes
           GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
         }
+
+        GL.BindVertexArray(_vaoLamp);
+
+        _lampShader.Use();
+
+        Matrix4 lampMatrix = Matrix4.CreateScale(0.2f);
+        lampMatrix = lampMatrix * Matrix4.CreateTranslation(_lightPos);
+
+        _lampShader.SetMatrix4("model", lampMatrix);
+        _lampShader.SetMatrix4("view", _camera.GetViewMatrix());
+        _lampShader.SetMatrix4("projection", _camera.GetProjectionMatrix());
+
+        GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
       }
 
       if (_currentShader == _multipleLights)
       {
+        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+        GL.BindVertexArray(_vaoModel);
+
+        _diffuseMap.Use(TextureUnit.Texture0);
+        _specularMap.Use(TextureUnit.Texture1);
         _multipleLights.Use();
 
         _multipleLights.SetMatrix4("view", _camera.GetViewMatrix());
@@ -510,14 +556,21 @@ namespace gcgcg
 
         _multipleLights.SetInt("material.diffuse", 0);
         _multipleLights.SetInt("material.specular", 1);
-        _multipleLights.SetVector3("material.specular", new Vector3(0.5f, 0.5f, 0.5f));
         _multipleLights.SetFloat("material.shininess", 32.0f);
 
+        /*
+           Here we set all the uniforms for the 5/6 types of lights we have. We have to set them manually and index
+           the proper PointLight struct in the array to set each uniform variable. This can be done more code-friendly
+           by defining light types as classes and set their values in there, or by using a more efficient uniform approach
+           by using 'Uniform buffer objects', but that is something we'll discuss in the 'Advanced GLSL' tutorial.
+        */
+        // Directional light
         _multipleLights.SetVector3("dirLight.direction", new Vector3(-0.2f, -1.0f, -0.3f));
         _multipleLights.SetVector3("dirLight.ambient", new Vector3(0.05f, 0.05f, 0.05f));
         _multipleLights.SetVector3("dirLight.diffuse", new Vector3(0.4f, 0.4f, 0.4f));
         _multipleLights.SetVector3("dirLight.specular", new Vector3(0.5f, 0.5f, 0.5f));
 
+        // Point lights
         for (int i = 0; i < _pointLightPositions.Length; i++)
         {
           _multipleLights.SetVector3($"pointLights[{i}].position", _pointLightPositions[i]);
@@ -529,6 +582,7 @@ namespace gcgcg
           _multipleLights.SetFloat($"pointLights[{i}].quadratic", 0.032f);
         }
 
+        // Spot light
         _multipleLights.SetVector3("spotLight.position", _camera.Position);
         _multipleLights.SetVector3("spotLight.direction", _camera.Front);
         _multipleLights.SetVector3("spotLight.ambient", new Vector3(0.0f, 0.0f, 0.0f));
@@ -549,43 +603,40 @@ namespace gcgcg
 
           GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
         }
+
+        GL.BindVertexArray(_vaoLamp);
+
+        _lampShader.Use();
+
+        _lampShader.SetMatrix4("view", _camera.GetViewMatrix());
+        _lampShader.SetMatrix4("projection", _camera.GetProjectionMatrix());
+        // We use a loop to draw all the lights at the proper position
+        for (int i = 0; i < _pointLightPositions.Length; i++)
+        {
+          Matrix4 lampMatrix = Matrix4.CreateScale(0.2f);
+          lampMatrix = lampMatrix * Matrix4.CreateTranslation(_pointLightPositions[i]);
+
+          _lampShader.SetMatrix4("model", lampMatrix);
+
+          GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+        }
       }
 
-      GL.BindVertexArray(_vertexArrayObjectFront);
-      _texture.Use(TextureUnit.Texture0);
-      _currentShader.Use();
+      if (_currentShader == _shader)
+      {
+        // Rendering the cube with texture without lighting
+        GL.BindVertexArray(_vertexArrayObject);
+        _texture.Use(TextureUnit.Texture0);
+        _currentShader.Use();
 
-      GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
+        // Configuring matrices for the shader
+        _currentShader.SetMatrix4("model", Matrix4.Identity);
+        _currentShader.SetMatrix4("view", _camera.GetViewMatrix());
+        _currentShader.SetMatrix4("projection", _camera.GetProjectionMatrix());
 
-      GL.BindVertexArray(_vertexArrayObjectBack);
-      _texture.Use(TextureUnit.Texture0);
-      _currentShader.Use();
-
-      GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
-
-      GL.BindVertexArray(_vertexArrayObjectTop);
-      _texture.Use(TextureUnit.Texture0);
-      _currentShader.Use();
-
-      GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
-
-      GL.BindVertexArray(_vertexArrayObjectDown);
-      _texture.Use(TextureUnit.Texture0);
-      _currentShader.Use();
-
-      GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
-
-      GL.BindVertexArray(_vertexArrayObjectRight);
-      _texture.Use(TextureUnit.Texture0);
-      _currentShader.Use();
-
-      GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
-
-      GL.BindVertexArray(_vertexArrayObjectLeft);
-      _texture.Use(TextureUnit.Texture0);
-      _currentShader.Use();
-
-      GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
+        // Drawing the cube with 36 vertices for all faces
+        GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+      }
 
 #if CG_Gizmo
       Gizmo_Sru3D();
@@ -600,27 +651,186 @@ namespace gcgcg
 
       if (cubo != null)
       {
-        ((Cubo) cubo).RotacionarFilho(0.2f);
+        ((Cubo)cubo).RotacionarFilho(0.05f);
       }
 
       #region Teclado
-        var estadoTeclado = KeyboardState;
+      var estadoTeclado = KeyboardState;
       if (estadoTeclado.IsKeyDown(Keys.Escape))
         Close();
       if (estadoTeclado.IsKeyDown(Keys.D0))
+      {
         _currentShader = _shader;
+      }
       if (estadoTeclado.IsKeyDown(Keys.D1))
+      {
         _currentShader = _basicLighting;
+      }
       if (estadoTeclado.IsKeyDown(Keys.D2))
+      {
         _currentShader = _lightingMaps;
+
+        {
+          _vaoModel = GL.GenVertexArray();
+          GL.BindVertexArray(_vaoModel);
+
+          // All of the vertex attributes have been updated to now have a stride of 8 float sizes.
+          var positionLocation = _lightingMaps.GetAttribLocation("aPos");
+          GL.EnableVertexAttribArray(positionLocation);
+          GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+
+          var normalLocation = _lightingMaps.GetAttribLocation("aNormal");
+          GL.EnableVertexAttribArray(normalLocation);
+          GL.VertexAttribPointer(normalLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
+
+          // The texture coords have now been added too, remember we only have 2 coordinates as the texture is 2d,
+          // so the size parameter should only be 2 for the texture coordinates.
+          var texCoordLocation = _lightingMaps.GetAttribLocation("aTexCoords");
+          GL.EnableVertexAttribArray(texCoordLocation);
+          GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 6 * sizeof(float));
+        }
+
+        {
+          _vaoLamp = GL.GenVertexArray();
+          GL.BindVertexArray(_vaoLamp);
+
+          GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject);
+
+          // The lamp shader should have its stride updated aswell, however we dont actually
+          // use the texture coords for the lamp, so we dont need to add any extra attributes.
+          var positionLocation = _lampShader.GetAttribLocation("aPos");
+          GL.EnableVertexAttribArray(positionLocation);
+          GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+        }
+      }
       if (estadoTeclado.IsKeyDown(Keys.D3))
+      {
         _currentShader = _directionalLights;
+
+        {
+          _vaoModel = GL.GenVertexArray();
+          GL.BindVertexArray(_vaoModel);
+
+          var positionLocation = _directionalLights.GetAttribLocation("aPos");
+          GL.EnableVertexAttribArray(positionLocation);
+          GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+
+          var normalLocation = _directionalLights.GetAttribLocation("aNormal");
+          GL.EnableVertexAttribArray(normalLocation);
+          GL.VertexAttribPointer(normalLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
+
+          var texCoordLocation = _directionalLights.GetAttribLocation("aTexCoords");
+          GL.EnableVertexAttribArray(texCoordLocation);
+          GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 6 * sizeof(float));
+        }
+
+        {
+          _vaoLamp = GL.GenVertexArray();
+          GL.BindVertexArray(_vaoLamp);
+
+          GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject);
+
+          var positionLocation = _lampShader.GetAttribLocation("aPos");
+          GL.EnableVertexAttribArray(positionLocation);
+          GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+        }
+      }
       if (estadoTeclado.IsKeyDown(Keys.D4))
+      {
         _currentShader = _pointLights;
+
+        {
+          _vaoModel = GL.GenVertexArray();
+          GL.BindVertexArray(_vaoModel);
+
+          var positionLocation = _pointLights.GetAttribLocation("aPos");
+          GL.EnableVertexAttribArray(positionLocation);
+          GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+
+          var normalLocation = _pointLights.GetAttribLocation("aNormal");
+          GL.EnableVertexAttribArray(normalLocation);
+          GL.VertexAttribPointer(normalLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
+
+          var texCoordLocation = _pointLights.GetAttribLocation("aTexCoords");
+          GL.EnableVertexAttribArray(texCoordLocation);
+          GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 6 * sizeof(float));
+        }
+
+        {
+          _vaoLamp = GL.GenVertexArray();
+          GL.BindVertexArray(_vaoLamp);
+
+          GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject);
+
+          var positionLocation = _lampShader.GetAttribLocation("aPos");
+          GL.EnableVertexAttribArray(positionLocation);
+          GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+        }
+      }
       if (estadoTeclado.IsKeyDown(Keys.D5))
+      {
         _currentShader = _spotlight;
+
+        {
+          _vaoModel = GL.GenVertexArray();
+          GL.BindVertexArray(_vaoModel);
+
+          var positionLocation = _spotlight.GetAttribLocation("aPos");
+          GL.EnableVertexAttribArray(positionLocation);
+          GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+
+          var normalLocation = _spotlight.GetAttribLocation("aNormal");
+          GL.EnableVertexAttribArray(normalLocation);
+          GL.VertexAttribPointer(normalLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
+
+          var texCoordLocation = _spotlight.GetAttribLocation("aTexCoords");
+          GL.EnableVertexAttribArray(texCoordLocation);
+          GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 6 * sizeof(float));
+        }
+
+        {
+          _vaoLamp = GL.GenVertexArray();
+          GL.BindVertexArray(_vaoLamp);
+
+          GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject);
+
+          var positionLocation = _lampShader.GetAttribLocation("aPos");
+          GL.EnableVertexAttribArray(positionLocation);
+          GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+        }
+      }
       if (estadoTeclado.IsKeyDown(Keys.D6))
+      {
         _currentShader = _multipleLights;
+
+        {
+          _vaoModel = GL.GenVertexArray();
+          GL.BindVertexArray(_vaoModel);
+
+          var positionLocation = _multipleLights.GetAttribLocation("aPos");
+          GL.EnableVertexAttribArray(positionLocation);
+          GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+
+          var normalLocation = _multipleLights.GetAttribLocation("aNormal");
+          GL.EnableVertexAttribArray(normalLocation);
+          GL.VertexAttribPointer(normalLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
+
+          var texCoordLocation = _multipleLights.GetAttribLocation("aTexCoords");
+          GL.EnableVertexAttribArray(texCoordLocation);
+          GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 6 * sizeof(float));
+        }
+
+        {
+          _vaoLamp = GL.GenVertexArray();
+          GL.BindVertexArray(_vaoLamp);
+
+          GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject);
+
+          var positionLocation = _lampShader.GetAttribLocation("aPos");
+          GL.EnableVertexAttribArray(positionLocation);
+          GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+        }
+      }
 
       const float cameraSpeed = 1.5f;
       var front = Vector3.Normalize(_origin - _camera.Position);
@@ -691,7 +901,7 @@ namespace gcgcg
     {
       base.OnResize(e);
 
-#if CG_DEBUG      
+#if CG_DEBUG
       Console.WriteLine("Tamanho interno da janela de desenho: " + ClientSize.X + "x" + ClientSize.Y);
 #endif
       GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
@@ -754,7 +964,7 @@ namespace gcgcg
       Console.WriteLine(" .. ERRO de Render - escolha OpenGL ou DirectX !!");
 #endif
     }
-#endif    
+#endif
 
   }
 }

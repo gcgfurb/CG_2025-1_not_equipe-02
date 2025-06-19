@@ -77,7 +77,7 @@ namespace gcgcg
 
       ponto = new Ponto(this, ref _rotulo, new Ponto4D(2.0, 0.0));
       ponto.PrimitivaTipo = PrimitiveType.Points;
-      ponto.PrimitivaTamanho = 5;
+      ponto.PrimitivaTamanho = 15;
 
       ponto.Atualizar();
 
