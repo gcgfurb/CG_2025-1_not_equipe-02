@@ -285,7 +285,7 @@ namespace gcgcg
       objetoSelecionado.shaderCor = _shaderAmarela;
       #endregion
 
-      _camera = new Camera(Vector3.UnitZ * 5, ClientSize.X / (float)ClientSize.Y);
+      _camera = new Camera(Vector3.UnitZ * 5, ClientSize.X / (float) ClientSize.Y);
 
       Vector3 dir = Vector3.Normalize(_camera.Position);
       pitch = MathHelper.RadiansToDegrees(MathF.Asin(dir.Y));
@@ -448,7 +448,7 @@ namespace gcgcg
         _pointLights.SetFloat("light.constant", 1.0f);
         _pointLights.SetFloat("light.linear", 0.09f);
         _pointLights.SetFloat("light.quadratic", 0.032f);
-        _pointLights.SetVector3("light.ambient", new Vector3(5.0f));
+        _pointLights.SetVector3("light.ambient", new Vector3(1f));
         _pointLights.SetVector3("light.diffuse", new Vector3(0.5f));
         _pointLights.SetVector3("light.specular", new Vector3(1.0f));
 
